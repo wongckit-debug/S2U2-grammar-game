@@ -1,0 +1,3499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>GRAMMAR-TATO</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, sans-serif;
+      background-color: #080614;
+      color: #f8fafc;
+      overflow-x: hidden;
+    }
+    .font-arcade {
+      font-family: 'Orbitron', sans-serif;
+    }
+    .glass-panel {
+      background: rgba(18, 14, 40, 0.92);
+      border: 2px solid rgba(0, 245, 212, 0.3);
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6);
+    }
+    .hero-btn {
+      background: rgba(26, 20, 56, 0.85);
+      border: 2px solid rgba(148, 163, 184, 0.2);
+      transition: all 0.16s ease;
+    }
+    .hero-btn:hover {
+      transform: translateY(-3px);
+      border-color: rgba(0, 245, 212, 0.6);
+    }
+    .hero-btn.active {
+      background: rgba(6, 78, 59, 0.55);
+      border-color: #00f5d4;
+      box-shadow: 0 0 20px rgba(0, 245, 212, 0.3);
+    }
+    .topic-btn {
+      background: rgba(26, 20, 56, 0.85);
+      border: 2px solid rgba(148, 163, 184, 0.22);
+      transition: all 0.16s ease;
+    }
+    .topic-btn:hover {
+      transform: translateY(-2px);
+      border-color: rgba(254, 228, 64, 0.65);
+    }
+    .topic-btn.active {
+      background: rgba(88, 28, 135, 0.55);
+      border-color: #fee440;
+      box-shadow: 0 0 20px rgba(254, 228, 64, 0.3);
+    }
+    .rule-tab-btn.active {
+      background: #fee440;
+      color: #080614;
+      border-color: #fee440;
+    }
+    .speed-pill.active {
+      background: #00f5d4;
+      color: #080614;
+      border-color: #00f5d4;
+    }
+    .quick-btn {
+      background: rgba(24, 18, 54, 0.95);
+      border: 2px solid rgba(0, 245, 212, 0.4);
+      transition: all 0.12s ease;
+    }
+    .quick-btn:hover {
+      border-color: #fee440;
+      background: rgba(45, 32, 96, 0.95);
+      transform: translateY(-2px);
+    }
+    .quick-btn:active {
+      transform: translateY(0);
+    }
+    #arenaCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: crosshair;
+      touch-action: none;
+    }
+    @keyframes pulseDanger {
+      0%, 100% { box-shadow: inset 0 0 35px rgba(244, 63, 94, 0.35); }
+      50% { box-shadow: inset 0 0 75px rgba(244, 63, 94, 0.85); }
+    }
+    .low-hp-vignette {
+      animation: pulseDanger 0.85s infinite;
+      border-color: #f43f5e !important;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+  <!-- ==================== TOP BAR ==================== -->
+  <header class="w-full max-w-5xl mx-auto px-4 pt-3 pb-1 flex items-center justify-between">
+    <div class="flex items-center gap-2.5">
+      <!-- Custom SVG Potato Icon -->
+      <svg class="w-9 h-9" viewBox="0 0 64 64" fill="none">
+        <ellipse cx="32" cy="34" rx="22" ry="25" fill="#d97706" stroke="#fbbf24" stroke-width="3"/>
+        <ellipse cx="26" cy="24" rx="12" ry="14" fill="#f59e0b" opacity="0.4"/>
+        <!-- Cyber Visor -->
+        <rect x="16" y="24" width="32" height="10" rx="5" fill="#090618" stroke="#00f5d4" stroke-width="2.5"/>
+        <circle cx="25" cy="29" r="2.5" fill="#00f5d4"/>
+        <circle cx="39" cy="29" r="2.5" fill="#00f5d4"/>
+        <!-- Determined Smile -->
+        <path d="M26 42 Q32 46 38 42" stroke="#090618" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <span class="font-arcade text-base sm:text-xl font-black tracking-wider bg-gradient-to-r from-amber-300 via-cyan-300 to-pink-400 bg-clip-text text-transparent block leading-none">
+          GRAMMAR-TATO
+        </span>
+        <span id="headerTopicBadge" class="text-[11px] font-bold text-amber-300">
+          🔗 Topic: Cause &amp; Effect
+        </span>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button id="btnOpenRules" type="button" class="px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-slate-800/90 hover:bg-slate-700 text-cyan-300 border border-cyan-500/40 transition flex items-center gap-1.5">
+        <span>📖</span>
+        <span id="btnRulesLabel">6 Rules</span>
+      </button>
+      <button id="btnSound" type="button" class="px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-slate-800/90 hover:bg-slate-700 text-amber-300 border border-amber-400/40 transition">
+        🔊
+      </button>
+      <button id="btnQuit" type="button" class="hidden px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-rose-950/90 hover:bg-rose-800 text-rose-200 border border-rose-500/40 transition">
+        🏠 Menu
+      </button>
+    </div>
+  </header>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="flex-1 w-full max-w-5xl mx-auto px-4 py-2 flex flex-col justify-center">
+
+    <!-- ==================== 1. START SCREEN (Ultra-Clean + Dynamic 8-Unit Topic Selector) ==================== -->
+    <section id="viewStart" class="glass-panel rounded-3xl p-5 sm:p-6 text-center max-w-4xl mx-auto w-full space-y-4">
+      <!-- Center Hero Logo -->
+      <div class="flex flex-col items-center">
+        <div class="w-14 h-14 rounded-3xl bg-amber-500/10 border-2 border-amber-400/50 flex items-center justify-center shadow-lg mb-1.5">
+          <svg class="w-10 h-10" viewBox="0 0 64 64" fill="none">
+            <ellipse cx="32" cy="34" rx="22" ry="25" fill="#d97706" stroke="#fbbf24" stroke-width="3"/>
+            <rect x="15" y="23" width="34" height="11" rx="5.5" fill="#090618" stroke="#00f5d4" stroke-width="2.5"/>
+            <circle cx="25" cy="28.5" r="2.8" fill="#00f5d4"/>
+            <circle cx="39" cy="28.5" r="2.8" fill="#00f5d4"/>
+            <path d="M25 43 Q32 47 39 43" stroke="#090618" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h1 class="font-arcade text-2xl sm:text-3xl font-black text-white tracking-wide">
+          GRAMMAR-TATO
+        </h1>
+        <p id="startSubtitle" class="text-xs sm:text-sm text-amber-300 font-bold mt-0.5">
+          Selected Mission: 🔗 Cause &amp; Effect (because • since • as • so • therefore • as a result)
+        </p>
+      </div>
+
+      <!-- STEP 1: 8 SEPARATE GRAMMAR TOPICS (DYNAMICALLY POPULATED) -->
+      <div class="space-y-2 text-left">
+        <div class="flex items-center justify-between px-1">
+          <span class="text-xs font-arcade font-bold uppercase tracking-wider text-amber-300">1. Choose Grammar Mission (8 Separate Units)</span>
+          <span class="text-[11px] text-slate-400">24 Questions per unit</span>
+        </div>
+        <div id="topicGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+          <!-- Populated dynamically from GRAMMAR_MODULES -->
+        </div>
+      </div>
+
+      <!-- STEP 2: 4 Clean Hero Cards in a Row -->
+      <div class="space-y-2 text-left">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 px-1">
+          <span class="text-xs font-arcade font-bold uppercase tracking-wider text-cyan-300">2. Choose Potato Hero</span>
+          <span class="text-[11px] font-bold text-rose-400">⚠️ Hardcore Rules: 12s Crate Bomb • 3 Crate Quota/Wave • Permadeath</span>
+        </div>
+        <div id="heroGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+          <button type="button" data-hero="brawler" class="hero-btn active rounded-2xl p-2.5 flex flex-col items-center gap-1">
+            <span class="text-3xl">🥔</span>
+            <span class="font-arcade text-xs sm:text-sm font-black text-white">BRAWLER</span>
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-pink-500/20 text-pink-300">❤️ Tank</span>
+          </button>
+
+          <button type="button" data-hero="sniper" class="hero-btn rounded-2xl p-2.5 flex flex-col items-center gap-1">
+            <span class="text-3xl">🤠</span>
+            <span class="font-arcade text-xs sm:text-sm font-black text-white">SNIPER</span>
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/20 text-cyan-300">🎯 High Crit</span>
+          </button>
+
+          <button type="button" data-hero="mage" class="hero-btn rounded-2xl p-2.5 flex flex-col items-center gap-1">
+            <span class="text-3xl">🧙‍♂️</span>
+            <span class="font-arcade text-xs sm:text-sm font-black text-white">MAGE</span>
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-300">💥 AoE</span>
+          </button>
+
+          <button type="button" data-hero="ninja" class="hero-btn rounded-2xl p-2.5 flex flex-col items-center gap-1">
+            <span class="text-3xl">🥷</span>
+            <span class="font-arcade text-xs sm:text-sm font-black text-white">NINJA</span>
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300">⚡ Fast</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 3 Simple Difficulty / Speed Pills -->
+      <div class="flex items-center justify-center gap-2.5">
+        <button type="button" data-speed="0.7" class="speed-pill px-4 py-1.5 rounded-full text-xs font-arcade font-bold border border-slate-700 bg-slate-900 text-slate-300 transition">
+          🐢 CHILL
+        </button>
+        <button type="button" data-speed="1.0" class="speed-pill active px-4 py-1.5 rounded-full text-xs font-arcade font-bold border border-slate-700 bg-slate-900 text-slate-300 transition">
+          ⚡ NORMAL
+        </button>
+        <button type="button" data-speed="1.35" class="speed-pill px-4 py-1.5 rounded-full text-xs font-arcade font-bold border border-slate-700 bg-slate-900 text-slate-300 transition">
+          🔥 FAST
+        </button>
+      </div>
+
+      <!-- 1 Big PLAY Button -->
+      <button id="btnPlay" type="button" class="w-full py-3.5 rounded-2xl font-arcade text-lg sm:text-xl font-black uppercase tracking-wider text-slate-950 bg-gradient-to-r from-amber-300 via-emerald-300 to-cyan-400 hover:opacity-95 shadow-xl shadow-cyan-500/20 transform hover:-translate-y-0.5 transition">
+        ▶ PLAY CAUSE &amp; EFFECT
+      </button>
+    </section>
+
+    <!-- ==================== 2. ARENA GAMEPLAY VIEW (Spacious & Uncluttered) ==================== -->
+    <section id="viewArena" class="hidden flex-col space-y-2.5 w-full">
+
+      <!-- Sleek Single-Line HUD -->
+      <div class="glass-panel rounded-2xl px-3.5 py-2 flex flex-wrap items-center justify-between gap-2.5">
+        <!-- HP Bar -->
+        <div class="flex items-center gap-2 flex-1 min-w-[140px] max-w-[200px]">
+          <span class="text-sm">❤️</span>
+          <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden border border-slate-700">
+            <div id="hudHpBar" class="bg-gradient-to-r from-emerald-500 to-lime-400 h-full transition-all duration-150" style="width: 100%;"></div>
+          </div>
+          <span id="hudHpText" class="font-mono text-xs font-bold text-slate-200 shrink-0">100/100</span>
+        </div>
+
+        <!-- Mandatory Wave Crate Quota -->
+        <div id="hudQuotaBadge" class="px-2.5 py-1 rounded-xl bg-rose-950/80 border border-rose-500/50 font-arcade text-xs font-black text-rose-300 flex items-center gap-1.5" title="Solve at least 3 Crates before the wave ends or you fail!">
+          <span>🎯 Quota:</span>
+          <span id="hudQuotaText">0/3</span>
+        </div>
+
+        <!-- Gems Counter -->
+        <div class="flex items-center gap-1 font-arcade text-sm sm:text-base font-black text-amber-300">
+          <span>💎</span>
+          <span id="hudGems">0</span>
+        </div>
+
+        <!-- Streak Counter -->
+        <div class="flex items-center gap-1 font-arcade text-sm sm:text-base font-black text-pink-400">
+          <span>🔥</span>
+          <span id="hudStreak">0</span>
+        </div>
+
+        <!-- Wave Timer -->
+        <div id="hudWaveTimer" class="px-3 py-1 rounded-xl bg-slate-900 border border-cyan-500/40 font-arcade text-xs sm:text-sm font-black text-cyan-300">
+          Wave 1 • 30s
+        </div>
+      </div>
+
+      <!-- Clean Single-Line Prompt Bar + 12s Bomb Fuse -->
+      <div class="glass-panel rounded-2xl px-4 pt-2.5 pb-2 flex flex-col gap-1.5 text-center sm:text-left relative overflow-hidden">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-2">
+          <div class="flex items-center gap-2.5 flex-wrap justify-center sm:justify-start w-full">
+            <span id="promptLogicTag" class="px-2.5 py-1 rounded-lg text-[11px] font-arcade font-black bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shrink-0">
+              💡 Hint: Reason (Why)
+            </span>
+            <p id="promptSentence" class="text-base sm:text-xl font-black text-white tracking-tight flex-1">
+              Tom ate two burgers <span class="px-2 py-0.5 rounded bg-amber-400/20 text-amber-300 font-mono">[ ___ ]</span> he was hungry.
+            </p>
+            <span id="bombFuseLabel" class="font-mono text-xs font-black text-amber-300 shrink-0">💣 12.0s</span>
+            <button id="btnSpeakPrompt" type="button" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-bold shrink-0">
+              🔊
+            </button>
+          </div>
+        </div>
+
+        <!-- 12-Second Crate Overload Bomb Bar -->
+        <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden">
+          <div id="bombTimerBar" class="bg-gradient-to-r from-cyan-400 via-amber-400 to-rose-500 h-full transition-all duration-100" style="width: 100%;"></div>
+        </div>
+
+        <!-- Minimal Toast Feedback -->
+        <div id="promptToast" class="hidden absolute inset-0 rounded-2xl items-center justify-center font-arcade text-sm sm:text-base font-black px-4 z-20"></div>
+      </div>
+
+      <!-- Large 2D Arena Canvas -->
+      <div id="arenaContainer" class="relative w-full h-[360px] sm:h-[420px] rounded-3xl overflow-hidden border-2 border-cyan-500/40 bg-[#0b081c] shadow-2xl transition-colors">
+        <canvas id="arenaCanvas"></canvas>
+      </div>
+
+      <!-- Clean 4-Button Quick-Bar Below Canvas -->
+      <div id="quickBar" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+        <button type="button" data-idx="0" class="quick-btn rounded-2xl py-3 px-4 flex items-center justify-center gap-2">
+          <span class="w-6 h-6 rounded-lg bg-amber-400/20 border border-amber-400 text-amber-300 font-arcade text-xs font-black flex items-center justify-center shrink-0">1</span>
+          <span class="q-label font-mono text-sm sm:text-base font-black text-white truncate">, so</span>
+        </button>
+        <button type="button" data-idx="1" class="quick-btn rounded-2xl py-3 px-4 flex items-center justify-center gap-2">
+          <span class="w-6 h-6 rounded-lg bg-amber-400/20 border border-amber-400 text-amber-300 font-arcade text-xs font-black flex items-center justify-center shrink-0">2</span>
+          <span class="q-label font-mono text-sm sm:text-base font-black text-white truncate">because</span>
+        </button>
+        <button type="button" data-idx="2" class="quick-btn rounded-2xl py-3 px-4 flex items-center justify-center gap-2">
+          <span class="w-6 h-6 rounded-lg bg-amber-400/20 border border-amber-400 text-amber-300 font-arcade text-xs font-black flex items-center justify-center shrink-0">3</span>
+          <span class="q-label font-mono text-sm sm:text-base font-black text-white truncate">. Therefore,</span>
+        </button>
+        <button type="button" data-idx="3" class="quick-btn rounded-2xl py-3 px-4 flex items-center justify-center gap-2">
+          <span class="w-6 h-6 rounded-lg bg-amber-400/20 border border-amber-400 text-amber-300 font-arcade text-xs font-black flex items-center justify-center shrink-0">4</span>
+          <span class="q-label font-mono text-sm sm:text-base font-black text-white truncate">since</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ==================== 3. BETWEEN-WAVE SHOP (Clean 3-Card Shop) ==================== -->
+    <section id="viewShop" class="hidden glass-panel rounded-3xl p-6 sm:p-8 max-w-3xl mx-auto w-full space-y-5">
+      <!-- Top Bar -->
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-4">
+        <div>
+          <span id="shopTitle" class="font-arcade text-xl sm:text-2xl font-black text-white block">🛒 WAVE 1 ARMORY</span>
+          <span id="shopStatusSub" class="text-xs font-bold text-slate-400">❤️ HP does NOT auto-heal between waves! Buy Medkits or Life Steal.</span>
+        </div>
+        <div class="flex items-center gap-2.5">
+          <div class="px-3 py-1.5 rounded-2xl bg-slate-900 border border-rose-500/40 font-mono text-xs sm:text-sm font-black text-rose-300">
+            ❤️ <span id="shopHpText">100/100</span>
+          </div>
+          <div class="flex items-center gap-1.5 px-4 py-1.5 rounded-2xl bg-slate-900 border border-amber-400/50 font-arcade text-base sm:text-lg font-black text-amber-300">
+            <span>💎</span>
+            <span id="shopGems">40</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick 1-Question Bonus Gem Chest (+40 💎 or -20 HP Trap!) -->
+      <div id="bountyBox" class="bg-indigo-950/60 border-2 border-amber-400/60 rounded-2xl p-4 text-center space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="px-2.5 py-0.5 rounded-lg text-xs font-arcade font-black bg-amber-400 text-slate-950">
+            🎁 HIGH-STAKES CHEST (+40 💎 / WRONG = -20 ❤️)
+          </span>
+          <span id="bountyResultText" class="text-xs font-bold text-amber-300">One shot! Choose carefully!</span>
+        </div>
+        <p id="bountyPrompt" class="text-base sm:text-lg font-black text-white"></p>
+        <div id="bountyBtns" class="grid grid-cols-2 sm:grid-cols-4 gap-2"></div>
+      </div>
+
+      <!-- 3 Clean Shop Item Cards + Reroll Bar -->
+      <div class="space-y-2.5">
+        <div class="flex items-center justify-between px-1">
+          <span class="text-xs font-arcade font-bold uppercase text-cyan-300">Armory Upgrades (Prices inflate each wave &amp; purchase)</span>
+          <button id="btnRerollShop" type="button" class="px-3 py-1 rounded-xl font-arcade text-xs font-black bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-400/40 transition">
+            🎲 Reroll (35 💎)
+          </button>
+        </div>
+        <div id="shopGrid" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
+      </div>
+
+      <!-- Big NEXT WAVE Button -->
+      <button id="btnNextWave" type="button" class="w-full py-4 rounded-2xl font-arcade text-lg font-black uppercase bg-gradient-to-r from-cyan-400 via-emerald-300 to-amber-300 text-slate-950 hover:opacity-95 shadow-lg transition">
+        NEXT WAVE ➔
+      </button>
+    </section>
+
+    <!-- ==================== 4. END SCREEN (Minimal Summary) ==================== -->
+    <section id="viewOver" class="hidden glass-panel rounded-3xl p-6 sm:p-8 text-center max-w-xl mx-auto w-full space-y-6">
+      <div id="overIcon" class="text-5xl">🏆</div>
+      <h2 id="overTitle" class="font-arcade text-2xl sm:text-3xl font-black text-white">VICTORY!</h2>
+      <p id="overTopicLabel" class="text-xs sm:text-sm font-bold text-amber-300"></p>
+
+      <div class="grid grid-cols-3 gap-3">
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5">
+          <div class="text-[11px] font-bold text-slate-400 uppercase">Score</div>
+          <div id="overScore" class="font-arcade text-xl sm:text-2xl font-black text-amber-300 mt-1">0</div>
+        </div>
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5">
+          <div class="text-[11px] font-bold text-slate-400 uppercase">Crates</div>
+          <div id="overCrates" class="font-arcade text-xl sm:text-2xl font-black text-emerald-400 mt-1">0/0</div>
+        </div>
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5">
+          <div class="text-[11px] font-bold text-slate-400 uppercase">Best Streak</div>
+          <div id="overStreak" class="font-arcade text-xl sm:text-2xl font-black text-pink-400 mt-1">0🔥</div>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-3">
+        <button id="btnRestart" type="button" class="flex-1 py-4 rounded-2xl font-arcade text-base font-black uppercase bg-gradient-to-r from-amber-300 via-emerald-300 to-cyan-400 text-slate-950 hover:opacity-95 shadow-lg transition">
+          🔄 PLAY AGAIN
+        </button>
+        <button id="btnChangeTopic" type="button" class="py-4 px-5 rounded-2xl font-arcade text-sm font-bold bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/40 transition">
+          📚 CHANGE TOPIC
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== 5. "6 RULES" CHEAT SHEET MODAL (With Dynamic 8-Topic Tabs) ==================== -->
+  <div id="rulesModal" class="fixed inset-0 z-50 hidden bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="glass-panel rounded-3xl w-full max-w-4xl max-h-[90vh] flex flex-col p-5 sm:p-6 space-y-4 overflow-hidden">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div>
+          <h2 id="rulesModalTitle" class="font-arcade text-lg sm:text-xl font-black text-cyan-300">📖 GRAMMAR RULES CHEAT SHEET</h2>
+          <p class="text-xs text-slate-400">Tap any unit tab below to study its 6 rules and listen to examples</p>
+        </div>
+        <button id="btnCloseRules" type="button" class="px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs">
+          ✕ Close
+        </button>
+      </div>
+
+      <!-- Dynamic 8 Topic Tabs inside Rules Modal -->
+      <div id="rulesTabBar" class="flex flex-wrap gap-1.5">
+        <!-- Populated dynamically by JS -->
+      </div>
+
+      <div id="rulesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 overflow-y-auto pr-1">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+  </div>
+
+  <footer class="text-center py-2 text-[11px] text-slate-600">
+    WASD / Arrows / Touch Drag to Move • Walk into Crate or Press 1–4
+  </footer>
+
+  <script>
+    // =========================================================================
+    // 1. 8 SEPARATE GRAMMAR TOPICS (EACH WITH 6 RULES & 24 S1 QUESTIONS = 192 TOTAL)
+    // =========================================================================
+    const GRAMMAR_MODULES = {
+      // -----------------------------------------------------------------------
+      // UNIT 1: CAUSE & EFFECT CONNECTIVES (PRESERVED WORD-FOR-WORD)
+      // -----------------------------------------------------------------------
+      connectives: {
+        unitLabel: "UNIT 1",
+        unitBadgeClass: "bg-amber-400/20 text-amber-300",
+        cardTitle: "CAUSE & EFFECT",
+        cardShortDesc: "because, since, as, so, therefore, as a result",
+        name: "Cause & Effect",
+        icon: "🔗",
+        desc: "because • since • as • so • therefore • as a result",
+        rules: [
+          {
+            title: "because",
+            type: "REASON (WHY)",
+            badgeClass: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
+            formula: "Result + because + Reason (also: only because / Why?)",
+            example: "Tom ate two burgers because he was hungry."
+          },
+          {
+            title: "since",
+            type: "KNOWN REASON",
+            badgeClass: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
+            formula: "Since + Reason, + Result",
+            example: "Since it is raining, take your umbrella."
+          },
+          {
+            title: "as",
+            type: "EASY REASON",
+            badgeClass: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
+            formula: "As + Reason, + Result",
+            example: "As she felt sick, Amy went home early."
+          },
+          {
+            title: ", so",
+            type: "RESULT (NO COMMA AFTER)",
+            badgeClass: "bg-pink-500/20 text-pink-300 border-pink-500/40",
+            formula: "Reason, + so + Result",
+            example: "I lost my key, so I could not go in."
+          },
+          {
+            title: "Therefore,",
+            type: "RESULT + COMMA",
+            badgeClass: "bg-pink-500/20 text-pink-300 border-pink-500/40",
+            formula: "Reason. + Therefore, + Result",
+            example: "Ken studied hard. Therefore, he passed the test."
+          },
+          {
+            title: "As a result,",
+            type: "RESULT PHRASE + COMMA",
+            badgeClass: "bg-pink-500/20 text-pink-300 border-pink-500/40",
+            formula: "Reason. + As a result, + Result (or: as a result of)",
+            example: "It rained hard. As a result, the match stopped."
+          }
+        ],
+        questions: [
+          {
+            tag: "💡 Hint: Gives the reason (Why)",
+            html: "Tom ate two burgers <span class='text-amber-300 font-mono'>[ ___ ]</span> he was very hungry.",
+            spoken: "Tom ate two burgers because he was very hungry.",
+            ans: "because",
+            opts: ["because", ", so", ". Therefore,", ". As a result,"]
+          },
+          {
+            tag: "💡 Hint: Use after 'only'",
+            html: "I <u class='text-amber-300'>only</u> bought this game <span class='text-amber-300 font-mono'>[ ___ ]</span> it was cheap.",
+            spoken: "I only bought this game because it was cheap.",
+            ans: "because",
+            opts: ["because", "since", "as", "so"]
+          },
+          {
+            tag: "💡 Hint: Answering 'Why?'",
+            html: "<u class='text-amber-300'>Why</u> are you late? — <span class='text-amber-300 font-mono'>[ ___ ]</span> I missed the bus.",
+            spoken: "Why are you late? Because I missed the bus.",
+            ans: "Because",
+            opts: ["Because", "So", "Therefore", "As"]
+          },
+          {
+            tag: "💡 Hint: Use after 'just'",
+            html: "Don't be sad <u class='text-amber-300'>just</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> you lost one game!",
+            spoken: "Don't be sad just because you lost one game!",
+            ans: "because",
+            opts: ["because", "as", "so", "therefore"]
+          },
+          {
+            tag: "💡 Hint: Starts with the reason",
+            html: "<span class='text-amber-300 font-mono'>[ ___ ]</span> it is raining now, take your umbrella.",
+            spoken: "Since it is raining now, take your umbrella.",
+            ans: "Since",
+            opts: ["Since", "So", "Therefore,", "As a result,"]
+          },
+          {
+            tag: "💡 Hint: Starts with the reason",
+            html: "<span class='text-amber-300 font-mono'>[ ___ ]</span> today is Sunday, our school is closed.",
+            spoken: "Since today is Sunday, our school is closed.",
+            ans: "Since",
+            opts: ["Since", "So", "Therefore,", "As a result,"]
+          },
+          {
+            tag: "💡 Hint: Gives the reason (Why)",
+            html: "We walked to the park <span class='text-amber-300 font-mono'>[ ___ ]</span> it was sunny.",
+            spoken: "We walked to the park since it was sunny.",
+            ans: "since",
+            opts: ["since", ", so", ". Therefore,", ". As a result,"]
+          },
+          {
+            tag: "💡 Hint: Starts with the reason",
+            html: "<span class='text-amber-300 font-mono'>[ ___ ]</span> you are tired, go to bed early.",
+            spoken: "Since you are tired, go to bed early.",
+            ans: "Since",
+            opts: ["Since", "So", "Therefore,", "As a result,"]
+          },
+          {
+            tag: "💡 Hint: Starts with the reason",
+            html: "<span class='text-amber-300 font-mono'>[ ___ ]</span> she felt sick, Amy went home early.",
+            spoken: "As she felt sick, Amy went home early.",
+            ans: "As",
+            opts: ["As", "So", "Therefore,", "As a result,"]
+          },
+          {
+            tag: "💡 Hint: Starts with the reason",
+            html: "<span class='text-amber-300 font-mono'>[ ___ ]</span> it was cold, I put on my jacket.",
+            spoken: "As it was cold, I put on my jacket.",
+            ans: "As",
+            opts: ["As", "So", "Therefore,", "As a result,"]
+          },
+          {
+            tag: "💡 Hint: Gives the reason (Why)",
+            html: "Ben drank two glasses of water <span class='text-amber-300 font-mono'>[ ___ ]</span> he was thirsty.",
+            spoken: "Ben drank two glasses of water as he was thirsty.",
+            ans: "as",
+            opts: ["as", ", so", ". Therefore,", ". As a result,"]
+          },
+          {
+            tag: "💡 Hint: Starts with the reason",
+            html: "<span class='text-amber-300 font-mono'>[ ___ ]</span> the bus was full, we waited for the next one.",
+            spoken: "As the bus was full, we waited for the next one.",
+            ans: "As",
+            opts: ["As", "So", "Therefore,", "As a result,"]
+          },
+          {
+            tag: "💡 Hint: Result after a comma",
+            html: "Leo lost his key, <span class='text-amber-300 font-mono'>[ ___ ]</span> he could not open the door.",
+            spoken: "Leo lost his key, so he could not open the door.",
+            ans: "so",
+            opts: ["so", "because", "since", "as"]
+          },
+          {
+            tag: "💡 Hint: Result (no comma after it)",
+            html: "The soup was too hot, <span class='text-amber-300 font-mono'>[ ___ ]</span> I waited a minute.",
+            spoken: "The soup was too hot, so I waited a minute.",
+            ans: "so",
+            opts: ["so", "because", "therefore,", "as a result,"]
+          },
+          {
+            tag: "💡 Hint: Result after a comma",
+            html: "My dog was dirty, <span class='text-amber-300 font-mono'>[ ___ ]</span> I gave him a bath.",
+            spoken: "My dog was dirty, so I gave him a bath.",
+            ans: "so",
+            opts: ["so", "because", "since", "as"]
+          },
+          {
+            tag: "💡 Hint: Result after a comma",
+            html: "It was dark in the room, <span class='text-amber-300 font-mono'>[ ___ ]</span> I turned on the light.",
+            spoken: "It was dark in the room, so I turned on the light.",
+            ans: "so",
+            opts: ["so", "because", "since", "as"]
+          },
+          {
+            tag: "💡 Hint: Result word + comma",
+            html: "Ken studied hard. <span class='text-amber-300 font-mono'>[ ___ ]</span><u class='text-amber-300'>,</u> he passed the English test.",
+            spoken: "Ken studied hard. Therefore, he passed the English test.",
+            ans: "Therefore",
+            opts: ["Therefore", "So", "Because", "Since"]
+          },
+          {
+            tag: "💡 Hint: Used between '; ___ ,'",
+            html: "The shop was closed<u class='text-amber-300'>;</u> <span class='text-amber-300 font-mono'>[ ___ ]</span><u class='text-amber-300'>,</u> we went to the café.",
+            spoken: "The shop was closed; therefore, we went to the café.",
+            ans: "therefore",
+            opts: ["therefore", "so", "because", "as"]
+          },
+          {
+            tag: "💡 Hint: Result word + comma",
+            html: "Mia practiced every day. <span class='text-amber-300 font-mono'>[ ___ ]</span><u class='text-amber-300'>,</u> she won the race.",
+            spoken: "Mia practiced every day. Therefore, she won the race.",
+            ans: "Therefore",
+            opts: ["Therefore", "Because", "Since", "As"]
+          },
+          {
+            tag: "💡 Hint: Result word + comma",
+            html: "He woke up late. <span class='text-amber-300 font-mono'>[ ___ ]</span><u class='text-amber-300'>,</u> he missed the school bus.",
+            spoken: "He woke up late. Therefore, he missed the school bus.",
+            ans: "Therefore",
+            opts: ["Therefore", "So", "Because", "As"]
+          },
+          {
+            tag: "💡 Hint: Result phrase + comma",
+            html: "It rained all morning. <span class='text-amber-300 font-mono'>[ ___ ]</span><u class='text-amber-300'>,</u> the football match stopped.",
+            spoken: "It rained all morning. As a result, the football match stopped.",
+            ans: "As a result",
+            opts: ["As a result", "Because", "Since", "As"]
+          },
+          {
+            tag: "💡 Hint: Phrase 'As a ___,'",
+            html: "Sam ate too much candy. <u class='text-amber-300'>As a</u> <span class='text-amber-300 font-mono'>[ ___ ]</span><u class='text-amber-300'>,</u> his tooth hurt.",
+            spoken: "Sam ate too much candy. As a result, his tooth hurt.",
+            ans: "result",
+            opts: ["result", "because", "therefore", "since"]
+          },
+          {
+            tag: "💡 Hint: Phrase 'as a ___ of'",
+            html: "The flight was late <u class='text-amber-300'>as a</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>of</u> the heavy rain.",
+            spoken: "The flight was late as a result of the heavy rain.",
+            ans: "result",
+            opts: ["result", "therefore", "because", "so"]
+          },
+          {
+            tag: "💡 Hint: Result phrase + comma",
+            html: "She forgot her alarm. <span class='text-amber-300 font-mono'>[ ___ ]</span><u class='text-amber-300'>,</u> she was late for class.",
+            spoken: "She forgot her alarm. As a result, she was late for class.",
+            ans: "As a result",
+            opts: ["As a result", "Because", "Since", "So"]
+          }
+        ]
+      },
+
+      // -----------------------------------------------------------------------
+      // UNIT 2: ADJECTIVES — COMPARATIVE & SUPERLATIVE (PRESERVED WORD-FOR-WORD)
+      // -----------------------------------------------------------------------
+      adjectives: {
+        unitLabel: "UNIT 2",
+        unitBadgeClass: "bg-cyan-400/20 text-cyan-300",
+        cardTitle: "ADJECTIVES",
+        cardShortDesc: "taller, nicer, heavier, fitter, more crowded / boring",
+        name: "Adjectives (-er / -est)",
+        icon: "🏆",
+        desc: "taller • nicer • heavier • fitter • more expensive • more crowded",
+        rules: [
+          {
+            title: "Most Short Adjectives",
+            type: "+ er / + est",
+            badgeClass: "bg-cyan-500/20 text-cyan-300 border-cyan-500/40",
+            formula: "tall ➔ taller ➔ tallest",
+            example: "Leo is taller than Ben, but Sam is the tallest."
+          },
+          {
+            title: "Ending in -e",
+            type: "+ r / + st",
+            badgeClass: "bg-cyan-500/20 text-cyan-300 border-cyan-500/40",
+            formula: "nice ➔ nicer ➔ nicest",
+            example: "This park is nicer and safer than the old one."
+          },
+          {
+            title: "Consonant + y",
+            type: "y ➔ ier / iest",
+            badgeClass: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
+            formula: "heavy ➔ heavier ➔ heaviest",
+            example: "My school bag is heavier than yours!"
+          },
+          {
+            title: "Vowel + Consonant",
+            type: "Double letter + er / est",
+            badgeClass: "bg-amber-500/20 text-amber-300 border-amber-500/40",
+            formula: "fit ➔ fitter ➔ fittest (big ➔ bigger)",
+            example: "Ken exercises daily, so he is the fittest boy."
+          },
+          {
+            title: "Long Adjectives (3+ Syllables)",
+            type: "more / most",
+            badgeClass: "bg-purple-500/20 text-purple-300 border-purple-500/40",
+            formula: "expensive ➔ more / most expensive",
+            example: "This computer is more expensive than my phone."
+          },
+          {
+            title: "Ending in -ed, -ful, -ing, -less",
+            type: "more / most",
+            badgeClass: "bg-pink-500/20 text-pink-300 border-pink-500/40",
+            formula: "crowded / cheerful / boring / careless",
+            example: "Mong Kok is more crowded than Shatin."
+          }
+        ],
+        questions: [
+          {
+            tag: "💡 Short Adj (tall) + than",
+            html: "Leo is <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>than</u> his younger brother.",
+            spoken: "Leo is taller than his younger brother.",
+            ans: "taller",
+            opts: ["taller", "tallest", "more tall", "most tall"]
+          },
+          {
+            tag: "💡 Short Adj (tall) + the",
+            html: "Sam is <u class='text-amber-300'>the</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> boy in our basketball team.",
+            spoken: "Sam is the tallest boy in our basketball team.",
+            ans: "tallest",
+            opts: ["tallest", "taller", "most tall", "more tall"]
+          },
+          {
+            tag: "💡 Short Adj (fast) + than",
+            html: "The airport train is <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>than</u> the bus.",
+            spoken: "The airport train is faster than the bus.",
+            ans: "faster",
+            opts: ["faster", "fastest", "more fast", "fastter"]
+          },
+          {
+            tag: "💡 Short Adj (young) + the",
+            html: "Mia is <u class='text-amber-300'>the</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> student in Secondary 1A.",
+            spoken: "Mia is the youngest student in Secondary 1A.",
+            ans: "youngest",
+            opts: ["youngest", "younger", "most young", "younggest"]
+          },
+          {
+            tag: "💡 Ends in -e (nice) + than",
+            html: "The new library is <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>than</u> the old one.",
+            spoken: "The new library is nicer than the old one.",
+            ans: "nicer",
+            opts: ["nicer", "niceer", "nicest", "more nice"]
+          },
+          {
+            tag: "💡 Ends in -e (nice) + the",
+            html: "Miss Chan is <u class='text-amber-300'>the</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> teacher in our school!",
+            spoken: "Miss Chan is the nicest teacher in our school!",
+            ans: "nicest",
+            opts: ["nicest", "nicer", "niceest", "most nice"]
+          },
+          {
+            tag: "💡 Ends in -e (large) + than",
+            html: "A watermelon is <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>than</u> an apple.",
+            spoken: "A watermelon is larger than an apple.",
+            ans: "larger",
+            opts: ["larger", "largeer", "largest", "more large"]
+          },
+          {
+            tag: "💡 Ends in -e (cute) + the",
+            html: "That tiny puppy is <u class='text-amber-300'>the</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> dog in the pet shop!",
+            spoken: "That tiny puppy is the cutest dog in the pet shop!",
+            ans: "cutest",
+            opts: ["cutest", "cuteest", "cuter", "most cute"]
+          },
+          {
+            tag: "💡 Consonant + y (heavy) + than",
+            html: "My school bag is <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>than</u> your bag.",
+            spoken: "My school bag is heavier than your bag.",
+            ans: "heavier",
+            opts: ["heavier", "heavyer", "more heavy", "heaviest"]
+          },
+          {
+            tag: "💡 Consonant + y (heavy) + the",
+            html: "The blue box is <u class='text-amber-300'>the</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> of all three boxes.",
+            spoken: "The blue box is the heaviest of all three boxes.",
+            ans: "heaviest",
+            opts: ["heaviest", "heavyest", "most heavy", "heavier"]
+          },
+          {
+            tag: "💡 Consonant + y (easy) + than",
+            html: "This English quiz is <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>than</u> the last one.",
+            spoken: "This English quiz is easier than the last one.",
+            ans: "easier",
+            opts: ["easier", "easyer", "more easy", "easiest"]
+          },
+          {
+            tag: "💡 Consonant + y (funny) + the",
+            html: "Ken told <u class='text-amber-300'>the</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> joke at the party.",
+            spoken: "Ken told the funniest joke at the party.",
+            ans: "funniest",
+            opts: ["funniest", "funnyest", "most funny", "funnier"]
+          },
+          {
+            tag: "💡 Double consonant (fit) + than",
+            html: "Tom swims every day, so he is <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>than</u> me.",
+            spoken: "Tom swims every day, so he is fitter than me.",
+            ans: "fitter",
+            opts: ["fitter", "fiter", "more fit", "fittest"]
+          },
+          {
+            tag: "💡 Double consonant (fit) + the",
+            html: "Coach Lee is <u class='text-amber-300'>the</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> person in the gym.",
+            spoken: "Coach Lee is the fittest person in the gym.",
+            ans: "fittest",
+            opts: ["fittest", "fitest", "most fit", "fitter"]
+          },
+          {
+            tag: "💡 Double consonant (hot) + than",
+            html: "August is <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>than</u> March in Hong Kong.",
+            spoken: "August is hotter than March in Hong Kong.",
+            ans: "hotter",
+            opts: ["hotter", "hoter", "more hot", "hottest"]
+          },
+          {
+            tag: "💡 Double consonant (big) + the",
+            html: "The elephant is <u class='text-amber-300'>the</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> land animal at the zoo.",
+            spoken: "The elephant is the biggest land animal at the zoo.",
+            ans: "biggest",
+            opts: ["biggest", "bigest", "most big", "bigger"]
+          },
+          {
+            tag: "💡 Long 3-syllable word + than",
+            html: "This laptop is <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>than</u> that tablet.",
+            spoken: "This laptop is more expensive than that tablet.",
+            ans: "more expensive",
+            opts: ["more expensive", "expensiver", "most expensive", "expensivest"]
+          },
+          {
+            tag: "💡 Long 3-syllable word + the",
+            html: "That watch is <u class='text-amber-300'>the</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> item in the shop.",
+            spoken: "That watch is the most expensive item in the shop.",
+            ans: "most expensive",
+            opts: ["most expensive", "more expensive", "expensivest", "expensiver"]
+          },
+          {
+            tag: "💡 Long 3-syllable word + than",
+            html: "Basketball is <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>than</u> golf at our school.",
+            spoken: "Basketball is more popular than golf at our school.",
+            ans: "more popular",
+            opts: ["more popular", "popularer", "most popular", "popularest"]
+          },
+          {
+            tag: "💡 Long 3-syllable word + the",
+            html: "This sofa is <u class='text-amber-300'>the</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> chair in the room.",
+            spoken: "This sofa is the most comfortable chair in the room.",
+            ans: "most comfortable",
+            opts: ["most comfortable", "more comfortable", "comfortablest", "comfortabler"]
+          },
+          {
+            tag: "💡 Ends in -ed (crowded) + than",
+            html: "Mong Kok is <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>than</u> Sai Kung.",
+            spoken: "Mong Kok is more crowded than Sai Kung.",
+            ans: "more crowded",
+            opts: ["more crowded", "crowdeder", "most crowded", "crowdedest"]
+          },
+          {
+            tag: "💡 Ends in -ful (cheerful) + the",
+            html: "Amy is <u class='text-amber-300'>the</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> girl in our class.",
+            spoken: "Amy is the most cheerful girl in our class.",
+            ans: "most cheerful",
+            opts: ["most cheerful", "cheerfulest", "more cheerful", "cheerfuler"]
+          },
+          {
+            tag: "💡 Ends in -ing (boring) + than",
+            html: "This slow movie is <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>than</u> the book.",
+            spoken: "This slow movie is more boring than the book.",
+            ans: "more boring",
+            opts: ["more boring", "boringer", "most boring", "boringest"]
+          },
+          {
+            tag: "💡 Ends in -less (careless) + the",
+            html: "He made 20 mistakes! He is <u class='text-amber-300'>the</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> driver.",
+            spoken: "He made 20 mistakes! He is the most careless driver.",
+            ans: "most careless",
+            opts: ["most careless", "carelessest", "more careless", "carelesser"]
+          }
+        ]
+      },
+
+      // -----------------------------------------------------------------------
+      // UNIT 3: COMPARING NOUNS (PRESERVED WORD-FOR-WORD)
+      // -----------------------------------------------------------------------
+      nouns: {
+        unitLabel: "UNIT 3",
+        unitBadgeClass: "bg-pink-400/20 text-pink-300",
+        cardTitle: "COMPARING NOUNS",
+        cardShortDesc: "more, most, fewer, fewest, less, least",
+        name: "Comparing Nouns",
+        icon: "⚖️",
+        desc: "more • most • fewer • fewest • less • least",
+        rules: [
+          {
+            title: "fewer + Countable",
+            type: "COMPARATIVE (THAN)",
+            badgeClass: "bg-cyan-500/20 text-cyan-300 border-cyan-500/40",
+            formula: "fewer + plural noun + than",
+            example: "Tom made fewer mistakes than Leo."
+          },
+          {
+            title: "the fewest + Countable",
+            type: "SUPERLATIVE (THE)",
+            badgeClass: "bg-cyan-500/20 text-cyan-300 border-cyan-500/40",
+            formula: "the fewest + plural noun",
+            example: "Amy made the fewest mistakes in the class."
+          },
+          {
+            title: "less + Uncountable",
+            type: "COMPARATIVE (THAN)",
+            badgeClass: "bg-pink-500/20 text-pink-300 border-pink-500/40",
+            formula: "less + uncountable noun + than",
+            example: "I drink less water than my brother."
+          },
+          {
+            title: "the least + Uncountable",
+            type: "SUPERLATIVE (THE)",
+            badgeClass: "bg-pink-500/20 text-pink-300 border-pink-500/40",
+            formula: "the least + uncountable noun",
+            example: "This snack has the least sugar of all."
+          },
+          {
+            title: "more + Any Noun",
+            type: "COMPARATIVE (+)",
+            badgeClass: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
+            formula: "more + countable / uncountable + than",
+            example: "She has more books and more time than me."
+          },
+          {
+            title: "the most + Any Noun",
+            type: "SUPERLATIVE (+)",
+            badgeClass: "bg-amber-500/20 text-amber-300 border-amber-500/40",
+            formula: "the most + countable / uncountable",
+            example: "Our team scored the most points today!"
+          }
+        ],
+        questions: [
+          {
+            tag: "💡 Countable plural (books) + than",
+            html: "Ben reads <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>books than</u> his sister.",
+            spoken: "Ben reads fewer books than his sister.",
+            ans: "fewer",
+            opts: ["fewer", "less", "fewest", "least"]
+          },
+          {
+            tag: "💡 Countable plural (mistakes) + than",
+            html: "Amy made <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>mistakes than</u> Tom in the quiz.",
+            spoken: "Amy made fewer mistakes than Tom in the quiz.",
+            ans: "fewer",
+            opts: ["fewer", "less", "fewest", "least"]
+          },
+          {
+            tag: "💡 Countable plural (apples) + than",
+            html: "There are <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>apples than</u> oranges in the basket.",
+            spoken: "There are fewer apples than oranges in the basket.",
+            ans: "fewer",
+            opts: ["fewer", "less", "fewest", "most"]
+          },
+          {
+            tag: "💡 Countable plural (students) + than",
+            html: "Class 1A has <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>students than</u> Class 1B.",
+            spoken: "Class 1A has fewer students than Class 1B.",
+            ans: "fewer",
+            opts: ["fewer", "less", "least", "fewest"]
+          },
+          {
+            tag: "💡 Countable plural (chairs) + than",
+            html: "This room has <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>chairs than</u> the hall.",
+            spoken: "This room has fewer chairs than the hall.",
+            ans: "fewer",
+            opts: ["fewer", "less", "fewest", "least"]
+          },
+          {
+            tag: "💡 Countable plural (coins) + the",
+            html: "I only have two coins! I have <u class='text-amber-300'>the</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>coins</u>.",
+            spoken: "I only have two coins! I have the fewest coins.",
+            ans: "fewest",
+            opts: ["fewest", "least", "fewer", "less"]
+          },
+          {
+            tag: "💡 Countable plural (mistakes) + the",
+            html: "Leo got 99 marks! He made <u class='text-amber-300'>the</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>mistakes</u>.",
+            spoken: "Leo got 99 marks! He made the fewest mistakes.",
+            ans: "fewest",
+            opts: ["fewest", "least", "fewer", "less"]
+          },
+          {
+            tag: "💡 Countable plural (emails) + the",
+            html: "Ken received <u class='text-amber-300'>the</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>emails</u> in the office today.",
+            spoken: "Ken received the fewest emails in the office today.",
+            ans: "fewest",
+            opts: ["fewest", "least", "fewer", "less"]
+          },
+          {
+            tag: "💡 Countable plural (days) + the",
+            html: "February has <u class='text-amber-300'>the</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>days</u> of all the months.",
+            spoken: "February has the fewest days of all the months.",
+            ans: "fewest",
+            opts: ["fewest", "least", "fewer", "less"]
+          },
+          {
+            tag: "💡 Uncountable (water) + than",
+            html: "This small bottle holds <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>water than</u> that jug.",
+            spoken: "This small bottle holds less water than that jug.",
+            ans: "less",
+            opts: ["less", "fewer", "least", "fewest"]
+          },
+          {
+            tag: "💡 Uncountable (sugar) + than",
+            html: "Green tea has <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>sugar than</u> cola.",
+            spoken: "Green tea has less sugar than cola.",
+            ans: "less",
+            opts: ["less", "fewer", "least", "fewest"]
+          },
+          {
+            tag: "💡 Uncountable (time) + than",
+            html: "We have <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>time than</u> yesterday, so hurry up!",
+            spoken: "We have less time than yesterday, so hurry up!",
+            ans: "less",
+            opts: ["less", "fewer", "least", "fewest"]
+          },
+          {
+            tag: "💡 Uncountable (money) + than",
+            html: "A bus ticket costs <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>money than</u> a taxi ride.",
+            spoken: "A bus ticket costs less money than a taxi ride.",
+            ans: "less",
+            opts: ["less", "fewer", "least", "most"]
+          },
+          {
+            tag: "💡 Uncountable (homework) + than",
+            html: "We have <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>homework than</u> last Friday.",
+            spoken: "We have less homework than last Friday.",
+            ans: "less",
+            opts: ["less", "fewer", "least", "fewest"]
+          },
+          {
+            tag: "💡 Uncountable (water) + the",
+            html: "This dry cup has <u class='text-amber-300'>the</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>water</u> of all.",
+            spoken: "This dry cup has the least water of all.",
+            ans: "least",
+            opts: ["least", "fewest", "less", "fewer"]
+          },
+          {
+            tag: "💡 Uncountable (noise) + the",
+            html: "The library has <u class='text-amber-300'>the</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>noise</u> in the school.",
+            spoken: "The library has the least noise in the school.",
+            ans: "least",
+            opts: ["least", "fewest", "less", "fewer"]
+          },
+          {
+            tag: "💡 Uncountable (money) + the",
+            html: "This $5 pen costs <u class='text-amber-300'>the</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>money</u> in the shop.",
+            spoken: "This five dollar pen costs the least money in the shop.",
+            ans: "least",
+            opts: ["least", "fewest", "less", "fewer"]
+          },
+          {
+            tag: "💡 Uncountable (snow) + the",
+            html: "Hong Kong gets <u class='text-amber-300'>the</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>snow</u> in winter.",
+            spoken: "Hong Kong gets the least snow in winter.",
+            ans: "least",
+            opts: ["least", "fewest", "less", "fewer"]
+          },
+          {
+            tag: "💡 Greater amount (+) + than",
+            html: " A library has <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>books than</u> my bedroom.",
+            spoken: "A library has more books than my bedroom.",
+            ans: "more",
+            opts: ["more", "most", "less", "least"]
+          },
+          {
+            tag: "💡 Greater amount (+) + than",
+            html: "The ocean has <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>water than</u> a swimming pool.",
+            spoken: "The ocean has more water than a swimming pool.",
+            ans: "more",
+            opts: ["more", "most", "fewer", "fewest"]
+          },
+          {
+            tag: "💡 Highest number (+) + the",
+            html: "Our team won! We scored <u class='text-amber-300'>the</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>points</u>!",
+            spoken: "Our team won! We scored the most points!",
+            ans: "most",
+            opts: ["most", "more", "less", "fewer"]
+          },
+          {
+            tag: "💡 Highest amount (+) + the",
+            html: "Bill is rich! He has <u class='text-amber-300'>the</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>money</u> of all.",
+            spoken: "Bill is rich! He has the most money of all.",
+            ans: "most",
+            opts: ["most", "more", "fewest", "fewer"]
+          },
+          {
+            tag: "💡 Greater number (+) + than",
+            html: "A bus has <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>seats than</u> a taxi.",
+            spoken: "A bus has more seats than a taxi.",
+            ans: "more",
+            opts: ["more", "most", "less", "least"]
+          },
+          {
+            tag: "💡 Highest number (+) + the",
+            html: "Mia loves animals. She has <u class='text-amber-300'>the</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>pets</u> in 1A.",
+            spoken: "Mia loves animals. She has the most pets in 1A.",
+            ans: "most",
+            opts: ["most", "more", "less", "least"]
+          }
+        ]
+      },
+
+      // -----------------------------------------------------------------------
+      // UNIT 4: CONDITIONAL SENTENCES TYPE 1 (PRESERVED WORD-FOR-WORD)
+      // -----------------------------------------------------------------------
+      conditionals: {
+        unitLabel: "UNIT 4",
+        unitBadgeClass: "bg-purple-400/20 text-purple-300",
+        cardTitle: "CONDITIONALS (TYPE 1)",
+        cardShortDesc: "If + present, will / can / may + base verb",
+        name: "Type 1 Conditionals",
+        icon: "🔮",
+        desc: "If + Simple Present, will / can / may + Base Verb",
+        rules: [
+          {
+            title: "If-Clause Rule",
+            type: "SIMPLE PRESENT",
+            badgeClass: "bg-cyan-500/20 text-cyan-300 border-cyan-500/40",
+            formula: "If + Subject + Present Verb (rains / have)",
+            example: "If it rains, we will cancel the outing."
+          },
+          {
+            title: "Main Clause Rule",
+            type: "SIMPLE FUTURE (WILL)",
+            badgeClass: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
+            formula: "Subject + will + Base Verb",
+            example: "If they have time, they will go to the cinema."
+          },
+          {
+            title: "Common Error Trap!",
+            type: "NO 'WILL' IN IF-CLAUSE",
+            badgeClass: "bg-rose-500/20 text-rose-300 border-rose-500/40",
+            formula: "✗ If you will join ➔ ✓ If you join",
+            example: "If you join the club, you will get a discount."
+          },
+          {
+            title: "Main Clause First",
+            type: "NO COMMA NEEDED",
+            badgeClass: "bg-amber-500/20 text-amber-300 border-amber-500/40",
+            formula: "Main Clause + if + Simple Present",
+            example: "We will cancel the outing if it rains."
+          },
+          {
+            title: "Modal: may + Base Verb",
+            type: "POSSIBLE RESULT",
+            badgeClass: "bg-purple-500/20 text-purple-300 border-purple-500/40",
+            formula: "If + Present, Subject + may + Base Verb",
+            example: "If you get up late, you may miss the bus."
+          },
+          {
+            title: "Modal: can + Base Verb",
+            type: "ABILITY / PERMISSION",
+            badgeClass: "bg-pink-500/20 text-pink-300 border-pink-500/40",
+            formula: "If + Present, Subject + can + Base Verb",
+            example: "If you are a member, you can use the gym."
+          }
+        ],
+        questions: [
+          {
+            tag: "💡 If-clause = Simple Present (it)",
+            html: "<u class='text-amber-300'>If</u> it <span class='text-amber-300 font-mono'>[ ___ ]</span>, we will cancel the outing.",
+            spoken: "If it rains, we will cancel the outing.",
+            ans: "rains",
+            opts: ["rains", "will rain", "rain", "rained"]
+          },
+          {
+            tag: "💡 If-clause = Simple Present (they)",
+            html: "<u class='text-amber-300'>If</u> they <span class='text-amber-300 font-mono'>[ ___ ]</span> time, they will go to the cinema.",
+            spoken: "If they have time, they will go to the cinema.",
+            ans: "have",
+            opts: ["have", "will have", "has", "had"]
+          },
+          {
+            tag: "💡 Common Error: NO 'will' after 'If'",
+            html: "<u class='text-amber-300'>If</u> you <span class='text-amber-300 font-mono'>[ ___ ]</span> the programme, you will get a discount.",
+            spoken: "If you join the programme, you will get a discount.",
+            ans: "join",
+            opts: ["join", "will join", "joins", "joined"]
+          },
+          {
+            tag: "💡 If-clause = Simple Present (you)",
+            html: "You can get a $50 coupon <u class='text-amber-300'>if</u> you <span class='text-amber-300 font-mono'>[ ___ ]</span> 1000 points.",
+            spoken: "You can get a 50 dollar coupon if you reach 1000 points.",
+            ans: "reach",
+            opts: ["reach", "will reach", "reaches", "reached"]
+          },
+          {
+            tag: "💡 If-clause = Simple Present (he)",
+            html: "<u class='text-amber-300'>If</u> Tom <span class='text-amber-300 font-mono'>[ ___ ]</span> hard, he will pass the exam.",
+            spoken: "If Tom studies hard, he will pass the exam.",
+            ans: "studies",
+            opts: ["studies", "will study", "study", "studied"]
+          },
+          {
+            tag: "💡 If-clause = Simple Present (she)",
+            html: "She will be happy <u class='text-amber-300'>if</u> she <span class='text-amber-300 font-mono'>[ ___ ]</span> the prize.",
+            spoken: "She will be happy if she wins the prize.",
+            ans: "wins",
+            opts: ["wins", "will win", "win", "won"]
+          },
+          {
+            tag: "💡 Main clause = will + base verb",
+            html: "If it rains tomorrow, we <span class='text-amber-300 font-mono'>[ ___ ]</span> at home.",
+            spoken: "If it rains tomorrow, we will stay at home.",
+            ans: "will stay",
+            opts: ["will stay", "stays", "stayed", "will stays"]
+          },
+          {
+            tag: "💡 Main clause = will + base verb",
+            html: "We <span class='text-amber-300 font-mono'>[ ___ ]</span> the outing if it rains heavily.",
+            spoken: "We will cancel the outing if it rains heavily.",
+            ans: "will cancel",
+            opts: ["will cancel", "cancels", "cancelled", "will cancels"]
+          },
+          {
+            tag: "💡 Main clause = will + base verb",
+            html: "They <span class='text-amber-300 font-mono'>[ ___ ]</span> to the cinema if they have time.",
+            spoken: "They will go to the cinema if they have time.",
+            ans: "will go",
+            opts: ["will go", "goes", "went", "will goes"]
+          },
+          {
+            tag: "💡 Main clause = will + base verb",
+            html: "You <span class='text-amber-300 font-mono'>[ ___ ]</span> points if you shop on our website.",
+            spoken: "You will earn points if you shop on our website.",
+            ans: "will earn",
+            opts: ["will earn", "earns", "earned", "will earns"]
+          },
+          {
+            tag: "💡 Main clause = will + base verb",
+            html: "If you eat too much ice cream, you <span class='text-amber-300 font-mono'>[ ___ ]</span> sick.",
+            spoken: "If you eat too much ice cream, you will feel sick.",
+            ans: "will feel",
+            opts: ["will feel", "feels", "felt", "will feels"]
+          },
+          {
+            tag: "💡 Main clause = will + base verb",
+            html: "I <span class='text-amber-300 font-mono'>[ ___ ]</span> you if I need help.",
+            spoken: "I will call you if I need help.",
+            ans: "will call",
+            opts: ["will call", "calls", "called", "will calls"]
+          },
+          {
+            tag: "💡 Modal in main clause (may + base verb)",
+            html: "If you get up late, you <span class='text-amber-300 font-mono'>[ ___ ]</span> the school bus.",
+            spoken: "If you get up late, you may miss the school bus.",
+            ans: "may miss",
+            opts: ["may miss", "may misses", "misses", "missed"]
+          },
+          {
+            tag: "💡 Modal in main clause (can + base verb)",
+            html: "If you are a member, you <span class='text-amber-300 font-mono'>[ ___ ]</span> the facilities.",
+            spoken: "If you are a member, you can use the facilities.",
+            ans: "can use",
+            opts: ["can use", "can uses", "uses", "used"]
+          },
+          {
+            tag: "💡 If-clause with 'be' (you)",
+            html: "<u class='text-amber-300'>If</u> you <span class='text-amber-300 font-mono'>[ ___ ]</span> a member, you can use the gym.",
+            spoken: "If you are a member, you can use the gym.",
+            ans: "are",
+            opts: ["are", "will be", "is", "were"]
+          },
+          {
+            tag: "💡 If-clause with 'be' (it)",
+            html: "We can play football <u class='text-amber-300'>if</u> it <span class='text-amber-300 font-mono'>[ ___ ]</span> sunny tomorrow.",
+            spoken: "We can play football if it is sunny tomorrow.",
+            ans: "is",
+            opts: ["is", "will be", "are", "was"]
+          },
+          {
+            tag: "💡 Modal + base verb",
+            html: "If you finish your homework, you <span class='text-amber-300 font-mono'>[ ___ ]</span> TV.",
+            spoken: "If you finish your homework, you can watch TV.",
+            ans: "can watch",
+            opts: ["can watch", "can watches", "watches", "watched"]
+          },
+          {
+            tag: "💡 Modal + base verb",
+            html: "If you do not wear a coat, you <span class='text-amber-300 font-mono'>[ ___ ]</span> a cold.",
+            spoken: "If you do not wear a coat, you may catch a cold.",
+            ans: "may catch",
+            opts: ["may catch", "may catches", "catches", "caught"]
+          },
+          {
+            tag: "💡 Negative If-clause (you)",
+            html: "<u class='text-amber-300'>If</u> you <span class='text-amber-300 font-mono'>[ ___ ]</span> hurry, we will be late!",
+            spoken: "If you do not hurry, we will be late!",
+            ans: "do not",
+            opts: ["do not", "will not", "does not", "did not"]
+          },
+          {
+            tag: "💡 Negative If-clause (he)",
+            html: "<u class='text-amber-300'>If</u> Leo <span class='text-amber-300 font-mono'>[ ___ ]</span> study, he may fail the test.",
+            spoken: "If Leo does not study, he may fail the test.",
+            ans: "does not",
+            opts: ["does not", "will not", "do not", "did not"]
+          },
+          {
+            tag: "💡 If-clause = Simple Present (we)",
+            html: "<u class='text-amber-300'>If</u> we <span class='text-amber-300 font-mono'>[ ___ ]</span> now, we will catch the train.",
+            spoken: "If we leave now, we will catch the train.",
+            ans: "leave",
+            opts: ["leave", "will leave", "leaves", "left"]
+          },
+          {
+            tag: "💡 If-clause = Simple Present (the dog)",
+            html: "The dog will bark <u class='text-amber-300'>if</u> it <span class='text-amber-300 font-mono'>[ ___ ]</span> a stranger.",
+            spoken: "The dog will bark if it sees a stranger.",
+            ans: "sees",
+            opts: ["sees", "will see", "see", "saw"]
+          },
+          {
+            tag: "💡 Main clause = will + base verb",
+            html: "If you drop that glass, it <span class='text-amber-300 font-mono'>[ ___ ]</span>!",
+            spoken: "If you drop that glass, it will break!",
+            ans: "will break",
+            opts: ["will break", "breaks", "broke", "will breaks"]
+          },
+          {
+            tag: "💡 If-clause = Simple Present (you)",
+            html: "You will enjoy a 10% discount <u class='text-amber-300'>if</u> you <span class='text-amber-300 font-mono'>[ ___ ]</span> today.",
+            spoken: "You will enjoy a 10% discount if you shop today.",
+            ans: "shop",
+            opts: ["shop", "will shop", "shops", "shopped"]
+          }
+        ]
+      },
+
+      // -----------------------------------------------------------------------
+      // UNIT 5: PAST CONTINUOUS TENSE (TEXTBOOK UNIT 2A)
+      // -----------------------------------------------------------------------
+      past_continuous: {
+        unitLabel: "UNIT 5",
+        unitBadgeClass: "bg-teal-400/20 text-teal-300",
+        cardTitle: "PAST CONTINUOUS",
+        cardShortDesc: "was/were + -ing, spelling, while & when, state verbs",
+        name: "Past Continuous",
+        icon: "⏳",
+        desc: "was/were + -ing • spelling • while & when • non-continuous verbs",
+        rules: [
+          {
+            title: "was / were + -ing",
+            type: "STATEMENT",
+            badgeClass: "bg-teal-500/20 text-teal-300 border-teal-500/40",
+            formula: "I/He/She/It was + -ing • You/We/They were + -ing",
+            example: "David was reading a book the whole afternoon yesterday."
+          },
+          {
+            title: "-ing Spelling Rules",
+            type: "SPELLING",
+            badgeClass: "bg-cyan-500/20 text-cyan-300 border-cyan-500/40",
+            formula: "make ➔ making • die ➔ dying • run ➔ running",
+            example: "They were making a cake and running in the garden."
+          },
+          {
+            title: "Yes/No & Wh- Questions",
+            type: "QUESTIONS",
+            badgeClass: "bg-amber-500/20 text-amber-300 border-amber-500/40",
+            formula: "(Wh-) + Was/Were + Subject + -ing?",
+            example: "What were you doing at 8 p.m. last night?"
+          },
+          {
+            title: "Two Parallel Actions (while)",
+            type: "SAME TIME",
+            badgeClass: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
+            formula: "While + Past Cont., Past Cont.",
+            example: "While Leo was watching TV, Rebecca was reading a book."
+          },
+          {
+            title: "Longer vs Shorter Action",
+            type: "WHILE / WHEN",
+            badgeClass: "bg-purple-500/20 text-purple-300 border-purple-500/40",
+            formula: "While/When + Past Cont. (long), Simple Past (short)",
+            example: "Crystal was quarrelling with her brother when their parents came home."
+          },
+          {
+            title: "Non-Continuous Tip!",
+            type: "NO -ING FORM",
+            badgeClass: "bg-rose-500/20 text-rose-300 border-rose-500/40",
+            formula: "belong, prefer, know, seem ➔ Simple Past!",
+            example: "That bag belonged to Leo. I knew the answer!"
+          }
+        ],
+        questions: [
+          // Statements & Subject-Verb Agreement (was / were / wasn't / weren't)
+          {
+            tag: "💡 Plural subject (brother & sister)",
+            html: "While I was studying, <u class='text-amber-300'>my brother and sister</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> music loudly.",
+            spoken: "While I was studying, my brother and sister were playing music loudly.",
+            ans: "were playing",
+            opts: ["were playing", "was playing", "are playing", "played"]
+          },
+          {
+            tag: "💡 Singular subject + whole afternoon",
+            html: "David <span class='text-amber-300 font-mono'>[ ___ ]</span> a book <u class='text-amber-300'>the whole afternoon yesterday</u>.",
+            spoken: "David was reading a book the whole afternoon yesterday.",
+            ans: "was reading",
+            opts: ["was reading", "were reading", "is reading", "reads"]
+          },
+          {
+            tag: "💡 Plural subject (We) + period of time",
+            html: "We <span class='text-amber-300 font-mono'>[ ___ ]</span> with our friends in Europe <u class='text-amber-300'>last month</u>.",
+            spoken: "We were travelling with our friends in Europe last month.",
+            ans: "were travelling",
+            opts: ["were travelling", "was travelling", "are travelling", "travel"]
+          },
+          {
+            tag: "💡 Negative Past Continuous (They)",
+            html: "The twins <span class='text-amber-300 font-mono'>[ ___ ]</span> at 10 p.m. last night; they were chatting!",
+            spoken: "The twins weren't sleeping at 10 p.m. last night; they were chatting!",
+            ans: "weren't sleeping",
+            opts: ["weren't sleeping", "wasn't sleeping", "didn't sleeping", "not sleeping"]
+          },
+
+          // -ing Spelling Rules (drop -e, ie -> ying, double consonant)
+          {
+            tag: "💡 Verb ending in -e (make)",
+            html: "Mum was <span class='text-amber-300 font-mono'>[ ___ ]</span> pancakes in the kitchen at 8 a.m.",
+            spoken: "Mum was making pancakes in the kitchen at 8 a.m.",
+            ans: "making",
+            opts: ["making", "makeing", "makking", "made"]
+          },
+          {
+            tag: "💡 Verb ending in -ie (die ➔ ying)",
+            html: "The flowers were <span class='text-amber-300 font-mono'>[ ___ ]</span> because nobody watered them.",
+            spoken: "The flowers were dying because nobody watered them.",
+            ans: "dying",
+            opts: ["dying", "dieing", "dyying", "died"]
+          },
+          {
+            tag: "💡 Verb ending in -ie (lie ➔ ying)",
+            html: "The lazy cat was <span class='text-amber-300 font-mono'>[ ___ ]</span> on the sunny sofa all morning.",
+            spoken: "The lazy cat was lying on the sunny sofa all morning.",
+            ans: "lying",
+            opts: ["lying", "lieing", "liing", "lay"]
+          },
+          {
+            tag: "💡 Double consonant (run ➔ running)",
+            html: "The dog was <span class='text-amber-300 font-mono'>[ ___ ]</span> after the thief in the park!",
+            spoken: "The dog was running after the thief in the park!",
+            ans: "running",
+            opts: ["running", "runing", "ranning", "runs"]
+          },
+          {
+            tag: "💡 Double consonant (begin ➔ beginning)",
+            html: "We hurried inside because it was <span class='text-amber-300 font-mono'>[ ___ ]</span> to rain.",
+            spoken: "We hurried inside because it was beginning to rain.",
+            ans: "beginning",
+            opts: ["beginning", "begining", "beggining", "began"]
+          },
+          {
+            tag: "💡 Double consonant (swim ➔ swimming)",
+            html: "While we were <span class='text-amber-300 font-mono'>[ ___ ]</span> in the ocean, a dolphin jumped!",
+            spoken: "While we were swimming in the ocean, a dolphin jumped!",
+            ans: "swimming",
+            opts: ["swimming", "swiming", "swimmingg", "swam"]
+          },
+
+          // Yes/No & Wh- Questions
+          {
+            tag: "💡 Yes/No Question (plural subject)",
+            html: "<span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>the firefighters</u> putting out a fire at that time?",
+            spoken: "Were the firefighters putting out a fire at that time?",
+            ans: "Were",
+            opts: ["Were", "Was", "Did", "Are"]
+          },
+          {
+            tag: "💡 Yes/No Question + Short Answer",
+            html: "<span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>Kitty</u> staying at her grandparents' home? — Yes, she was.",
+            spoken: "Was Kitty staying at her grandparents' home? Yes, she was.",
+            ans: "Was",
+            opts: ["Was", "Were", "Did", "Is"]
+          },
+          {
+            tag: "💡 Wh- Question (you = were + -ing)",
+            html: "What <span class='text-amber-300 font-mono'>[ ___ ]</span> at 8 p.m. last night?",
+            spoken: "What were you doing at 8 p.m. last night?",
+            ans: "were you doing",
+            opts: ["were you doing", "you were doing", "was you doing", "did you doing"]
+          },
+          {
+            tag: "💡 Wh- Question (he = was + -ing)",
+            html: "Where <span class='text-amber-300 font-mono'>[ ___ ]</span> the graffiti yesterday?",
+            spoken: "Where was he painting the graffiti yesterday?",
+            ans: "was he painting",
+            opts: ["was he painting", "were he painting", "he was painting", "did he painting"]
+          },
+          {
+            tag: "💡 Wh- Question (you = were + -ing)",
+            html: "Why <span class='text-amber-300 font-mono'>[ ___ ]</span> so fast on that wet road?",
+            spoken: "Why were you driving so fast on that wet road?",
+            ans: "were you driving",
+            opts: ["were you driving", "was you driving", "you were driving", "did you drove"]
+          },
+
+          // Past Continuous with 'while' and 'when'
+          {
+            tag: "💡 Two parallel actions at the same time",
+            html: "<u class='text-amber-300'>While</u> Leo was watching TV, Rebecca <span class='text-amber-300 font-mono'>[ ___ ]</span> a book.",
+            spoken: "While Leo was watching TV, Rebecca was reading a book.",
+            ans: "was reading",
+            opts: ["was reading", "were reading", "is reading", "reads"]
+          },
+          {
+            tag: "💡 Shorter interrupting action = Simple Past",
+            html: "<u class='text-amber-300'>While</u> we were swimming in the ocean, a shark suddenly <span class='text-amber-300 font-mono'>[ ___ ]</span>!",
+            spoken: "While we were swimming in the ocean, a shark suddenly appeared!",
+            ans: "appeared",
+            opts: ["appeared", "was appearing", "were appearing", "appears"]
+          },
+          {
+            tag: "💡 Longer ongoing action = Past Continuous",
+            html: "Crystal <span class='text-amber-300 font-mono'>[ ___ ]</span> with her brother <u class='text-amber-300'>when</u> their parents came home.",
+            spoken: "Crystal was quarrelling with her brother when their parents came home.",
+            ans: "was quarrelling",
+            opts: ["was quarrelling", "quarrelled", "were quarrelling", "is quarrelling"]
+          },
+          {
+            tag: "💡 Use 'when' before the shorter Simple Past action",
+            html: "I was taking a shower <span class='text-amber-300 font-mono'>[ ___ ]</span> the doorbell <u class='text-amber-300'>rang</u>.",
+            spoken: "I was taking a shower when the doorbell rang.",
+            ans: "when",
+            opts: ["when", "while", "during", "since"]
+          },
+          {
+            tag: "💡 Two ongoing actions = link with 'While'",
+            html: "<span class='text-amber-300 font-mono'>[ ___ ]</span> Dad <u class='text-amber-300'>was cooking</u> dinner, Mum <u class='text-amber-300'>was setting</u> the table.",
+            spoken: "While Dad was cooking dinner, Mum was setting the table.",
+            ans: "While",
+            opts: ["While", "During", "Because of", "Therefore"]
+          },
+
+          // Tip: Non-continuous state verbs (belong, prefer, know, seem)
+          {
+            tag: "💡 Tip: No -ing for 'know'!",
+            html: "Even at that moment, I <span class='text-amber-300 font-mono'>[ ___ ]</span> he was telling the truth.",
+            spoken: "Even at that moment, I knew he was telling the truth.",
+            ans: "knew",
+            opts: ["knew", "was knowing", "were knowing", "knowed"]
+          },
+          {
+            tag: "💡 Tip: No -ing for 'belong'!",
+            html: "That old bicycle <span class='text-amber-300 font-mono'>[ ___ ]</span> to my uncle five years ago.",
+            spoken: "That old bicycle belonged to my uncle five years ago.",
+            ans: "belonged",
+            opts: ["belonged", "was belonging", "were belonging", "belongs"]
+          },
+          {
+            tag: "💡 Tip: No -ing for 'prefer'!",
+            html: "When Amy was little, she <span class='text-amber-300 font-mono'>[ ___ ]</span> milk to orange juice.",
+            spoken: "When Amy was little, she preferred milk to orange juice.",
+            ans: "preferred",
+            opts: ["preferred", "was preferring", "were preferring", "prefered"]
+          },
+          {
+            tag: "💡 Tip: No -ing for 'seem'!",
+            html: "Ken <span class='text-amber-300 font-mono'>[ ___ ]</span> tired while he was giving his speech.",
+            spoken: "Ken seemed tired while he was giving his speech.",
+            ans: "seemed",
+            opts: ["seemed", "was seeming", "were seeming", "seems"]
+          }
+        ]
+      },
+
+      // -----------------------------------------------------------------------
+      // UNIT 6: PRESENT PERFECT TENSE (TEXTBOOK UNIT 3A)
+      // -----------------------------------------------------------------------
+      present_perfect: {
+        unitLabel: "UNIT 6",
+        unitBadgeClass: "bg-sky-400/20 text-sky-300",
+        cardTitle: "PRESENT PERFECT",
+        cardShortDesc: "have/has + p.p., past actions connected to present",
+        name: "Present Perfect",
+        icon: "✨",
+        desc: "have/has + past participle • past actions connected to present",
+        rules: [
+          {
+            title: "have / has + Past Participle",
+            type: "POSITIVE FORM",
+            badgeClass: "bg-sky-500/20 text-sky-300 border-sky-500/40",
+            formula: "I/You/We/They have • He/She/It has + p.p.",
+            example: "Chef Greening has served nutritious food for 15 years."
+          },
+          {
+            title: "haven't / hasn't + p.p.",
+            type: "NEGATIVE FORM",
+            badgeClass: "bg-rose-500/20 text-rose-300 border-rose-500/40",
+            formula: "have not (haven't) / has not (hasn't) + p.p.",
+            example: "He has never made an unhealthy meal!"
+          },
+          {
+            title: "Past to Present Duration",
+            type: "CONTINUES NOW",
+            badgeClass: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
+            formula: "has/have + p.p. + for / since",
+            example: "She has worked as a chef for ten years."
+          },
+          {
+            title: "Present Result",
+            type: "CONNECTED NOW",
+            badgeClass: "bg-amber-500/20 text-amber-300 border-amber-500/40",
+            formula: "Recent past action ➔ Result right now",
+            example: "Vivian has lost her Octopus card, so she cannot pay."
+          },
+          {
+            title: "Indefinite Time & Repeated",
+            type: "EXPERIENCE",
+            badgeClass: "bg-purple-500/20 text-purple-300 border-purple-500/40",
+            formula: "already / never / five times up to now",
+            example: "She has visited Africa five times."
+          },
+          {
+            title: "Irregular Past Participles",
+            type: "VERB FORMS",
+            badgeClass: "bg-cyan-500/20 text-cyan-300 border-cyan-500/40",
+            formula: "break ➔ broken • forget ➔ forgotten • do ➔ done",
+            example: "Lawrence has forgotten his email password."
+          }
+        ],
+        questions: [
+          // Textbook Unit 3A Core Examples
+          {
+            tag: "💡 Past up to present (Chef Greening = He)",
+            html: "Francis Greening <span class='text-amber-300 font-mono'>[ ___ ]</span> nutritious food <u class='text-amber-300'>for 15 years</u>.",
+            spoken: "Francis Greening has served nutritious food for 15 years.",
+            ans: "has served",
+            opts: ["has served", "have served", "is serving", "serves"]
+          },
+          {
+            tag: "💡 Plural subject (most of the dishes)",
+            html: "<u class='text-amber-300'>Most of his vegetarian dishes</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> very popular.",
+            spoken: "Most of his vegetarian dishes have been very popular.",
+            ans: "have been",
+            opts: ["have been", "has been", "was", "have be"]
+          },
+          {
+            tag: "💡 Experience with 'never' (he = has + p.p.)",
+            html: "Chef Greening claims he <span class='text-amber-300 font-mono'>[ ___ ]</span> an unhealthy meal!",
+            spoken: "Chef Greening claims he has never made an unhealthy meal!",
+            ans: "has never made",
+            opts: ["has never made", "have never made", "has never make", "never has maked"]
+          },
+          {
+            tag: "💡 Present result (she still doesn't have it)",
+            html: "Vivian <span class='text-amber-300 font-mono'>[ ___ ]</span> her Octopus card, so she cannot pay the fare.",
+            spoken: "Vivian has lost her Octopus card, so she cannot pay the fare.",
+            ans: "has lost",
+            opts: ["has lost", "have lost", "has lose", "loses"]
+          },
+          {
+            tag: "💡 Irregular p.p. (forget ➔ forgotten)",
+            html: "Lawrence <span class='text-amber-300 font-mono'>[ ___ ]</span> his email password and still can't log in.",
+            spoken: "Lawrence has forgotten his email password and still can't log in.",
+            ans: "has forgotten",
+            opts: ["has forgotten", "has forgot", "have forgotten", "has forget"]
+          },
+          {
+            tag: "💡 Began in past & continues now (for ten years)",
+            html: "She <span class='text-amber-300 font-mono'>[ ___ ]</span> as a chef <u class='text-amber-300'>for ten years</u>.",
+            spoken: "She has worked as a chef for ten years.",
+            ans: "has worked",
+            opts: ["has worked", "have worked", "works", "has work"]
+          },
+          {
+            tag: "💡 Present result (I + have + broken)",
+            html: "I have to cancel my trip because I <span class='text-amber-300 font-mono'>[ ___ ]</span> my leg!",
+            spoken: "I have to cancel my trip because I have broken my leg!",
+            ans: "have broken",
+            opts: ["have broken", "have broke", "has broken", "broke"]
+          },
+          {
+            tag: "💡 Indefinite past time (do ➔ done)",
+            html: "John is free now because he <span class='text-amber-300 font-mono'>[ ___ ]</span> his homework.",
+            spoken: "John is free now because he has done his homework.",
+            ans: "has done",
+            opts: ["has done", "has did", "have done", "has do"]
+          },
+          {
+            tag: "💡 Happened several times up to now",
+            html: "She <span class='text-amber-300 font-mono'>[ ___ ]</span> Africa <u class='text-amber-300'>five times</u> so far.",
+            spoken: "She has visited Africa five times so far.",
+            ans: "has visited",
+            opts: ["has visited", "have visited", "visits", "has visit"]
+          },
+
+          // Positive & Negative Forms (have/has/haven't/hasn't)
+          {
+            tag: "💡 Plural subject (They = have + p.p.)",
+            html: "Look at the empty plates! <u class='text-amber-300'>They</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> all the food.",
+            spoken: "Look at the empty plates! They have finished all the food.",
+            ans: "have finished",
+            opts: ["have finished", "has finished", "have finish", "are finish"]
+          },
+          {
+            tag: "💡 Negative Present Perfect (He = hasn't)",
+            html: "Sam is still hungry because he <span class='text-amber-300 font-mono'>[ ___ ]</span> lunch yet.",
+            spoken: "Sam is still hungry because he hasn't eaten lunch yet.",
+            ans: "hasn't eaten",
+            opts: ["hasn't eaten", "haven't eaten", "hasn't ate", "didn't eaten"]
+          },
+          {
+            tag: "💡 Negative Present Perfect (We = haven't)",
+            html: "<u class='text-amber-300'>We</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> that new Marvel movie yet.",
+            spoken: "We haven't seen that new Marvel movie yet.",
+            ans: "haven't seen",
+            opts: ["haven't seen", "hasn't seen", "haven't saw", "don't seen"]
+          },
+          {
+            tag: "💡 Singular subject (My sister = has)",
+            html: "<u class='text-amber-300'>My sister</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> three letters to her pen friend.",
+            spoken: "My sister has written three letters to her pen friend.",
+            ans: "has written",
+            opts: ["has written", "has wrote", "have written", "writes"]
+          },
+
+          // Irregular Past Participles & S1 Traps
+          {
+            tag: "💡 Irregular p.p. (eat ➔ eaten)",
+            html: "Who <span class='text-amber-300 font-mono'>[ ___ ]</span> all the cookies in the jar? It's empty!",
+            spoken: "Who has eaten all the cookies in the jar? It's empty!",
+            ans: "has eaten",
+            opts: ["has eaten", "has ate", "have ate", "has eat"]
+          },
+          {
+            tag: "💡 Irregular p.p. (take ➔ taken)",
+            html: "<u class='text-amber-300'>I</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> over 100 photos on this trip so far!",
+            spoken: "I have taken over 100 photos on this trip so far!",
+            ans: "have taken",
+            opts: ["have taken", "have took", "has taken", "took"]
+          },
+          {
+            tag: "💡 Irregular p.p. (go ➔ gone — still away now)",
+            html: "Mr Lee isn't in the office right now. He <span class='text-amber-300 font-mono'>[ ___ ]</span> to Tokyo.",
+            spoken: "Mr Lee isn't in the office right now. He has gone to Tokyo.",
+            ans: "has gone",
+            opts: ["has gone", "has went", "have gone", "goes"]
+          },
+          {
+            tag: "💡 Irregular p.p. (drink ➔ drunk)",
+            html: "Ben <span class='text-amber-300 font-mono'>[ ___ ]</span> three cups of coffee already today!",
+            spoken: "Ben has drunk three cups of coffee already today!",
+            ans: "has drunk",
+            opts: ["has drunk", "has drank", "have drunk", "has drink"]
+          },
+          {
+            tag: "💡 Irregular p.p. (buy ➔ bought)",
+            html: "Look! Mum <span class='text-amber-300 font-mono'>[ ___ ]</span> a new birthday cake for us!",
+            spoken: "Look! Mum has bought a new birthday cake for us!",
+            ans: "has bought",
+            opts: ["has bought", "has buyed", "have bought", "buys"]
+          },
+          {
+            tag: "💡 Irregular p.p. (give ➔ given)",
+            html: "Miss Wong <span class='text-amber-300 font-mono'>[ ___ ]</span> us some useful grammar tips.",
+            spoken: "Miss Wong has given us some useful grammar tips.",
+            ans: "has given",
+            opts: ["has given", "has gave", "have given", "has give"]
+          },
+          {
+            tag: "💡 Irregular p.p. (know ➔ known + since)",
+            html: "<u class='text-amber-300'>I</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> Leo <u class='text-amber-300'>since Primary 1</u>.",
+            spoken: "I have known Leo since Primary 1.",
+            ans: "have known",
+            opts: ["have known", "have knew", "has known", "am knowing"]
+          },
+          {
+            tag: "💡 Present result (clean room right now)",
+            html: "The classroom looks tidy because the students <span class='text-amber-300 font-mono'>[ ___ ]</span> it.",
+            spoken: "The classroom looks tidy because the students have cleaned it.",
+            ans: "have cleaned",
+            opts: ["have cleaned", "has cleaned", "have clean", "cleans"]
+          },
+          {
+            tag: "💡 Plural subject (Leo and Mia = have)",
+            html: "<u class='text-amber-300'>Leo and Mia</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> Ocean Park four times.",
+            spoken: "Leo and Mia have visited Ocean Park four times.",
+            ans: "have visited",
+            opts: ["have visited", "has visited", "have visit", "visits"]
+          },
+          {
+            tag: "💡 Irregular p.p. (break ➔ broken)",
+            html: "Oh no! Someone <span class='text-amber-300 font-mono'>[ ___ ]</span> the classroom window!",
+            spoken: "Oh no! Someone has broken the classroom window!",
+            ans: "has broken",
+            opts: ["has broken", "has broke", "have broken", "breaks"]
+          },
+          {
+            tag: "💡 Negative Present Perfect (I = haven't)",
+            html: "Can I borrow your pen? I <span class='text-amber-300 font-mono'>[ ___ ]</span> my pencil case today.",
+            spoken: "Can I borrow your pen? I haven't brought my pencil case today.",
+            ans: "haven't brought",
+            opts: ["haven't brought", "hasn't brought", "haven't bring", "don't brought"]
+          }
+        ]
+      },
+
+      // -----------------------------------------------------------------------
+      // UNIT 7: ADVERBS OF DEGREE (TEXTBOOK SECTION B)
+      // -----------------------------------------------------------------------
+      adverbs_degree: {
+        unitLabel: "UNIT 7",
+        unitBadgeClass: "bg-indigo-400/20 text-indigo-300",
+        cardTitle: "ADVERBS OF DEGREE",
+        cardShortDesc: "slightly, quite, very, extremely, quite a/an, tips",
+        name: "Adverbs of Degree",
+        icon: "📊",
+        desc: "slightly • quite • very • extremely • word order & tips",
+        rules: [
+          {
+            title: "Intensity Scale (Low ➔ High)",
+            type: "4 LEVELS",
+            badgeClass: "bg-indigo-500/20 text-indigo-300 border-indigo-500/40",
+            formula: "slightly (1) < quite (2) < very (3) < extremely (4)",
+            example: "The food was extremely tasty!"
+          },
+          {
+            title: "Before Adjectives",
+            type: "ADJ INTENSITY",
+            badgeClass: "bg-cyan-500/20 text-cyan-300 border-cyan-500/40",
+            formula: "be + slightly / quite / very / extremely + Adjective",
+            example: "It is very difficult to stick to a healthy diet."
+          },
+          {
+            title: "Before Adverbs",
+            type: "ADV INTENSITY",
+            badgeClass: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
+            formula: "Verb + quite / very / extremely + Adverb",
+            example: "The bell rang very loudly. We all covered our ears!"
+          },
+          {
+            title: "Before Verbs (slightly / quite)",
+            type: "VERB RULE",
+            badgeClass: "bg-amber-500/20 text-amber-300 border-amber-500/40",
+            formula: "slightly / quite + Verb (✗ NOT very + verb!)",
+            example: "Tommy quite likes shopping. I slightly marinated the steak."
+          },
+          {
+            title: "Word Order: quite a/an",
+            type: "ARTICLE TIP!",
+            badgeClass: "bg-purple-500/20 text-purple-300 border-purple-500/40",
+            formula: "quite + a/an + Adjective + Noun",
+            example: "He is quite a good boss."
+          },
+          {
+            title: "Non-Gradable Adjectives",
+            type: "COMMON TRAP!",
+            badgeClass: "bg-rose-500/20 text-rose-300 border-rose-500/40",
+            formula: "✗ very dead / ✗ quite finished (already 100%!)",
+            example: "My homework is completely finished (NOT quite finished)."
+          }
+        ],
+        questions: [
+          // Intensity Scale (slightly < quite < very < extremely)
+          {
+            tag: "💡 Lowest degree (just a tiny bit)",
+            html: "The soup only needs a pinch of salt; it is <span class='text-amber-300 font-mono'>[ ___ ]</span> bland.",
+            spoken: "The soup only needs a pinch of salt; it is slightly bland.",
+            ans: "slightly",
+            opts: ["slightly", "extremely", "very", "too"]
+          },
+          {
+            tag: "💡 Highest degree (40°C scorching heat!)",
+            html: "It is 40°C outside! The weather is <span class='text-amber-300 font-mono'>[ ___ ]</span> hot today!",
+            spoken: "It is 40 degrees outside! The weather is extremely hot today!",
+            ans: "extremely",
+            opts: ["extremely", "slightly", "almost", "a bit"]
+          },
+          {
+            tag: "💡 Moderate degree (fairly good, 7/10)",
+            html: "The film wasn't amazing, but it was <span class='text-amber-300 font-mono'>[ ___ ]</span> good.",
+            spoken: "The film wasn't amazing, but it was quite good.",
+            ans: "quite",
+            opts: ["quite", "slightly", "extremely", "almost"]
+          },
+          {
+            tag: "💡 Excessively plain (negative excess from questionnaire)",
+            html: "I like strong flavour. Most healthy dishes are <span class='text-amber-300 font-mono'>[ ___ ]</span> plain for me.",
+            spoken: "I like strong flavour. Most healthy dishes are too plain for me.",
+            ans: "too",
+            opts: ["too", "slightly", "almost", "quite a"]
+          },
+          {
+            tag: "💡 Nearly 100% tasteless (questionnaire clue)",
+            html: "This boiled vegetable has zero salt! It is <span class='text-amber-300 font-mono'>[ ___ ]</span> tasteless.",
+            spoken: "This boiled vegetable has zero salt! It is almost tasteless.",
+            ans: "almost",
+            opts: ["almost", "very", "quite", "extremely"]
+          },
+          {
+            tag: "💡 Lowest degree (only $2 more)",
+            html: "Shop A is $50 and Shop B is $52. Shop B is <span class='text-amber-300 font-mono'>[ ___ ]</span> more expensive.",
+            spoken: "Shop A is 50 dollars and Shop B is 52 dollars. Shop B is slightly more expensive.",
+            ans: "slightly",
+            opts: ["slightly", "extremely", "very", "too"]
+          },
+          {
+            tag: "💡 Highest degree (100/100 marks!)",
+            html: "Mia got 100 marks! Her parents were <span class='text-amber-300 font-mono'>[ ___ ]</span> proud of her!",
+            spoken: "Mia got 100 marks! Her parents were extremely proud of her!",
+            ans: "extremely",
+            opts: ["extremely", "slightly", "almost", "too"]
+          },
+
+          // Before Adverbs
+          {
+            tag: "💡 Before an adverb (came ___ quickly)",
+            html: "We didn't wait long! Our food came <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>quickly</u> after we ordered.",
+            spoken: "We didn't wait long! Our food came quite quickly after we ordered.",
+            ans: "quite",
+            opts: ["quite", "slightly", "almost", "quite a"]
+          },
+          {
+            tag: "💡 High intensity before an adverb (covered our ears!)",
+            html: "The bell rang <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>loudly</u>. We all covered our ears!",
+            spoken: "The bell rang very loudly. We all covered our ears!",
+            ans: "very",
+            opts: ["very", "slightly", "almost", "quite a"]
+          },
+          {
+            tag: "💡 Highest intensity before an adverb",
+            html: "The cheetah ran <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>fast</u> across the grassland!",
+            spoken: "The cheetah ran extremely fast across the grassland!",
+            ans: "extremely",
+            opts: ["extremely", "slightly", "almost", "quite a"]
+          },
+
+          // Before Verbs (ONLY 'slightly' or 'quite' among the 4!)
+          {
+            tag: "💡 Before a verb (marinated) — NOT 'very/extremely'!",
+            html: "I <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>marinated</u> the steak with a little salt and pepper.",
+            spoken: "I slightly marinated the steak with a little salt and pepper.",
+            ans: "slightly",
+            opts: ["slightly", "very", "extremely", "too"]
+          },
+          {
+            tag: "💡 Before a verb (likes) — NOT 'very/extremely'!",
+            html: "Tommy <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>likes</u> shopping at the weekend.",
+            spoken: "Tommy quite likes shopping at the weekend.",
+            ans: "quite",
+            opts: ["quite", "very", "extremely", "too"]
+          },
+          {
+            tag: "💡 Before a verb (enjoyed) — NOT 'very/extremely'!",
+            html: "We <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>enjoyed</u> the school picnic yesterday.",
+            spoken: "We quite enjoyed the school picnic yesterday.",
+            ans: "quite",
+            opts: ["quite", "very", "extremely", "too"]
+          },
+          {
+            tag: "💡 Before a verb (changed) — tiny amount",
+            html: "The teacher <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>changed</u> the seating plan today.",
+            spoken: "The teacher slightly changed the seating plan today.",
+            ans: "slightly",
+            opts: ["slightly", "very", "extremely", "too"]
+          },
+          {
+            tag: "💡 Before a verb (agree) — NOT 'very'!",
+            html: "I <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>agree</u> with your smart idea!",
+            spoken: "I quite agree with your smart idea!",
+            ans: "quite",
+            opts: ["quite", "very", "extremely", "too"]
+          },
+
+          // Tip: Word Order with 'quite + a/an + adj + noun'
+          {
+            tag: "💡 Tip: Put 'quite' BEFORE 'a/an'!",
+            html: "Everyone respects Mr Chan because he is <span class='text-amber-300 font-mono'>[ ___ ]</span> boss.",
+            spoken: "Everyone respects Mr Chan because he is quite a good boss.",
+            ans: "quite a good",
+            opts: ["quite a good", "a quite good", "very a good", "quite good a"]
+          },
+          {
+            tag: "💡 Tip: quite + an + vowel adjective + noun",
+            html: "We watched <span class='text-amber-300 font-mono'>[ ___ ]</span> movie last night.",
+            spoken: "We watched quite an interesting movie last night.",
+            ans: "quite an interesting",
+            opts: ["quite an interesting", "a quite interesting", "quite a interesting", "very an interesting"]
+          },
+          {
+            tag: "💡 Tip: Put 'quite' BEFORE 'a'!",
+            html: "Climbing that steep hill was <span class='text-amber-300 font-mono'>[ ___ ]</span> task.",
+            spoken: "Climbing that steep hill was quite a difficult task.",
+            ans: "quite a difficult",
+            opts: ["quite a difficult", "a quite difficult", "very a difficult", "extremely a difficult"]
+          },
+          {
+            tag: "💡 Contrast: 'a + very + adj + noun' vs 'quite a'",
+            html: "Miss Lee is a <span class='text-amber-300 font-mono'>[ ___ ]</span> teacher! Everyone loves her.",
+            spoken: "Miss Lee is a very kind teacher! Everyone loves her.",
+            ans: "very kind",
+            opts: ["very kind", "quite kind", "kind very", "slightly a kind"]
+          },
+          {
+            tag: "💡 Tip: quite + a + adj + noun",
+            html: "That old castle has <span class='text-amber-300 font-mono'>[ ___ ]</span> history.",
+            spoken: "That old castle has quite a long history.",
+            ans: "quite a long",
+            opts: ["quite a long", "a quite long", "very a long", "slightly a long"]
+          },
+
+          // Tip: Non-gradable Adjectives (NOT 'very dead' / 'quite finished')
+          {
+            tag: "💡 Tip: Pick a GRADABLE adjective after 'very'!",
+            html: "After running 5 km, Leo felt <u class='text-amber-300'>very</u> <span class='text-amber-300 font-mono'>[ ___ ]</span>.",
+            spoken: "After running 5 kilometres, Leo felt very tired.",
+            ans: "tired",
+            opts: ["tired", "dead", "finished", "impossible"]
+          },
+          {
+            tag: "💡 Tip: 'finished' is non-gradable (no very/quite/slightly!)",
+            html: "You can play outside now; your project is <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>finished</u>.",
+            spoken: "You can play outside now; your project is completely finished.",
+            ans: "completely",
+            opts: ["completely", "quite", "very", "slightly"]
+          },
+          {
+            tag: "💡 Tip: 'dead' is non-gradable (never 'very dead'!)",
+            html: "My phone battery is <span class='text-amber-300 font-mono'>[ ___ ]</span> <u class='text-amber-300'>dead</u>—it is at 1%!",
+            spoken: "My phone battery is almost dead—it is at 1 percent!",
+            ans: "almost",
+            opts: ["almost", "very", "slightly", "extremely"]
+          },
+          {
+            tag: "💡 Tip: Pick a GRADABLE adjective after 'quite'!",
+            html: "Can we eat soon? I am <u class='text-amber-300'>quite</u> <span class='text-amber-300 font-mono'>[ ___ ]</span>.",
+            spoken: "Can we eat soon? I am quite hungry.",
+            ans: "hungry",
+            opts: ["hungry", "dead", "finished", "impossible"]
+          }
+        ]
+      },
+
+      // -----------------------------------------------------------------------
+      // UNIT 8: CONDITIONAL SENTENCES TYPE 0 (TEXTBOOK SECTION C)
+      // -----------------------------------------------------------------------
+      conditionals_zero: {
+        unitLabel: "UNIT 8",
+        unitBadgeClass: "bg-lime-400/20 text-lime-300",
+        cardTitle: "CONDITIONALS (TYPE 0)",
+        cardShortDesc: "If / When + present, present (facts & general truths)",
+        name: "Type 0 Conditionals",
+        icon: "🔬",
+        desc: "If / When + Simple Present, Simple Present (Facts & Truths)",
+        rules: [
+          {
+            title: "Facts & General Truths",
+            type: "BOTH PRESENT",
+            badgeClass: "bg-lime-500/20 text-lime-300 border-lime-500/40",
+            formula: "If + Simple Present, Simple Present (NO 'will'!)",
+            example: "If it rains, the ground gets wet."
+          },
+          {
+            title: "Scientific & Health Facts",
+            type: "CAUSE & FACT",
+            badgeClass: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
+            formula: "If + Subject + Verb, Subject + Verb(-s)",
+            example: "If you eat too much salty food, your blood pressure goes up."
+          },
+          {
+            title: "Negative Facts (don't / doesn't)",
+            type: "NEGATIVE",
+            badgeClass: "bg-rose-500/20 text-rose-300 border-rose-500/40",
+            formula: "If + Subject + do/does not + Verb, Simple Present",
+            example: "If flowers do not get enough water, they die."
+          },
+          {
+            title: "Main Clause First",
+            type: "NO COMMA",
+            badgeClass: "bg-amber-500/20 text-amber-300 border-amber-500/40",
+            formula: "Simple Present + if + Simple Present",
+            example: "Flowers die if they do not get enough water."
+          },
+          {
+            title: "Replacing 'if' with 'when'",
+            type: "IF = WHEN",
+            badgeClass: "bg-cyan-500/20 text-cyan-300 border-cyan-500/40",
+            formula: "When + Simple Present, Simple Present",
+            example: "When flowers do not get enough water, they die."
+          },
+          {
+            title: "Type 0 vs Type 1 Check",
+            type: "FACT VS FUTURE",
+            badgeClass: "bg-purple-500/20 text-purple-300 border-purple-500/40",
+            formula: "General truth = Present • One future event = will",
+            example: "If you heat ice, it melts. (Always true = Type 0!)"
+          }
+        ],
+        questions: [
+          // Textbook Section C Core Examples
+          {
+            tag: "💡 Health Fact (blood pressure = singular, NO 'will')",
+            html: "If you eat too much salty food, <u class='text-amber-300'>your blood pressure</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> up.",
+            spoken: "If you eat too much salty food, your blood pressure goes up.",
+            ans: "goes",
+            opts: ["goes", "will go", "go", "went"]
+          },
+          {
+            tag: "💡 Health Fact (If-clause = Simple Present)",
+            html: "If <u class='text-amber-300'>your blood pressure</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> high, you have a higher risk of heart disease.",
+            spoken: "If your blood pressure stays high, you have a higher risk of heart disease.",
+            ans: "stays",
+            opts: ["stays", "will stay", "stay", "stayed"]
+          },
+          {
+            tag: "💡 General Truth (the ground = singular, NO 'will')",
+            html: "If it rains, <u class='text-amber-300'>the ground</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> wet.",
+            spoken: "If it rains, the ground gets wet.",
+            ans: "gets",
+            opts: ["gets", "will get", "get", "got"]
+          },
+          {
+            tag: "💡 Negative Fact (flowers = plural)",
+            html: "If <u class='text-amber-300'>flowers</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> enough water, they die.",
+            spoken: "If flowers do not get enough water, they die.",
+            ans: "do not get",
+            opts: ["do not get", "will not get", "does not get", "did not get"]
+          },
+          {
+            tag: "💡 Main clause first (it = Simple Present)",
+            html: "The ground gets wet <u class='text-amber-300'>if</u> it <span class='text-amber-300 font-mono'>[ ___ ]</span>.",
+            spoken: "The ground gets wet if it rains.",
+            ans: "rains",
+            opts: ["rains", "will rain", "rain", "rained"]
+          },
+          {
+            tag: "💡 Main clause first (flowers = plural)",
+            html: "<u class='text-amber-300'>Flowers</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> if they do not get enough water.",
+            spoken: "Flowers die if they do not get enough water.",
+            ans: "die",
+            opts: ["die", "will die", "dies", "died"]
+          },
+          {
+            tag: "💡 Tip: Replace 'if' with 'when' for facts!",
+            html: "<span class='text-amber-300 font-mono'>[ ___ ]</span> flowers do not get enough water, they die.",
+            spoken: "When flowers do not get enough water, they die.",
+            ans: "When",
+            opts: ["When", "While", "So", "Therefore"]
+          },
+
+          // Scientific Facts & General Truths (S1 Friendly)
+          {
+            tag: "💡 Science Fact (ice = singular, NO 'will')",
+            html: "If you heat ice, <u class='text-amber-300'>it</u> <span class='text-amber-300 font-mono'>[ ___ ]</span>.",
+            spoken: "If you heat ice, it melts.",
+            ans: "melts",
+            opts: ["melts", "will melt", "melt", "melted"]
+          },
+          {
+            tag: "💡 Science Fact (water = uncountable singular)",
+            html: "Water <span class='text-amber-300 font-mono'>[ ___ ]</span> if you heat it to 100°C.",
+            spoken: "Water boils if you heat it to 100 degrees Celsius.",
+            ans: "boils",
+            opts: ["boils", "will boil", "boil", "boiled"]
+          },
+          {
+            tag: "💡 Colour Fact (you = plural/base form)",
+            html: "If you mix red and blue, <u class='text-amber-300'>you</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> purple.",
+            spoken: "If you mix red and blue, you get purple.",
+            ans: "get",
+            opts: ["get", "will get", "gets", "got"]
+          },
+          {
+            tag: "💡 Science Fact (water freezes below 0°C)",
+            html: "When the temperature <span class='text-amber-300 font-mono'>[ ___ ]</span> below 0°C, water freezes.",
+            spoken: "When the temperature drops below zero degrees Celsius, water freezes.",
+            ans: "drops",
+            opts: ["drops", "will drop", "drop", "dropped"]
+          },
+          {
+            tag: "💡 General Truth (babies = plural)",
+            html: "If <u class='text-amber-300'>babies</u> are hungry, they <span class='text-amber-300 font-mono'>[ ___ ]</span>.",
+            spoken: "If babies are hungry, they cry.",
+            ans: "cry",
+            opts: ["cry", "will cry", "cries", "cried"]
+          },
+          {
+            tag: "💡 Negative Science Fact (a plant = singular)",
+            html: "If <u class='text-amber-300'>a plant</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> sunlight, it dies.",
+            spoken: "If a plant does not get sunlight, it dies.",
+            ans: "does not get",
+            opts: ["does not get", "will not get", "do not get", "did not get"]
+          },
+          {
+            tag: "💡 Science Fact (iron = uncountable singular)",
+            html: "<u class='text-amber-300'>Iron</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> if it gets wet.",
+            spoken: "Iron rusts if it gets wet.",
+            ans: "rusts",
+            opts: ["rusts", "will rust", "rust", "rusted"]
+          },
+          {
+            tag: "💡 Gravity Fact (it = singular, NO 'will')",
+            html: "If you drop an apple, <u class='text-amber-300'>it</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> to the ground.",
+            spoken: "If you drop an apple, it falls to the ground.",
+            ans: "falls",
+            opts: ["falls", "will fall", "fall", "fell"]
+          },
+          {
+            tag: "💡 General Fact (you = base verb, NO 'will')",
+            html: "If you touch fire, <u class='text-amber-300'>you</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> burned.",
+            spoken: "If you touch fire, you get burned.",
+            ans: "get",
+            opts: ["get", "will get", "gets", "got"]
+          },
+          {
+            tag: "💡 Animal Fact (snakes = plural)",
+            html: "Snakes <span class='text-amber-300 font-mono'>[ ___ ]</span> if they are scared.",
+            spoken: "Snakes bite if they are scared.",
+            ans: "bite",
+            opts: ["bite", "will bite", "bites", "bit"]
+          },
+          {
+            tag: "💡 Nature Fact (the sun = singular)",
+            html: "When <u class='text-amber-300'>the sun</u> goes down, it <span class='text-amber-300 font-mono'>[ ___ ]</span> dark.",
+            spoken: "When the sun goes down, it gets dark.",
+            ans: "gets",
+            opts: ["gets", "will get", "get", "got"]
+          },
+          {
+            tag: "💡 Health Fact (people = plural)",
+            html: "If <u class='text-amber-300'>people</u> eat too much sweets, they <span class='text-amber-300 font-mono'>[ ___ ]</span> weight.",
+            spoken: "If people eat too much sweets, they gain weight.",
+            ans: "gain",
+            opts: ["gain", "will gain", "gains", "gained"]
+          },
+          {
+            tag: "💡 Negative Health Fact (you = do not)",
+            html: "You feel tired the next day if <u class='text-amber-300'>you</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> enough.",
+            spoken: "You feel tired the next day if you do not sleep enough.",
+            ans: "do not sleep",
+            opts: ["do not sleep", "will not sleep", "does not sleep", "did not sleep"]
+          },
+          {
+            tag: "💡 Science Fact (wood = uncountable singular)",
+            html: "Wood <span class='text-amber-300 font-mono'>[ ___ ]</span> if you put it in water; it floats!",
+            spoken: "Wood does not sink if you put it in water; it floats!",
+            ans: "does not sink",
+            opts: ["does not sink", "will not sink", "do not sink", "did not sink"]
+          },
+          {
+            tag: "💡 Colour Fact (yellow and blue)",
+            html: "When you <span class='text-amber-300 font-mono'>[ ___ ]</span> yellow and blue, you get green.",
+            spoken: "When you mix yellow and blue, you get green.",
+            ans: "mix",
+            opts: ["mix", "will mix", "mixes", "mixed"]
+          },
+          {
+            tag: "💡 Health Fact (your heart = singular)",
+            html: "When you exercise, <u class='text-amber-300'>your heart</u> <span class='text-amber-300 font-mono'>[ ___ ]</span> faster.",
+            spoken: "When you exercise, your heart beats faster.",
+            ans: "beats",
+            opts: ["beats", "will beat", "beat", "beated"]
+          },
+          {
+            tag: "💡 Tip: 'When' or 'If' for general truths",
+            html: "Milk goes sour <span class='text-amber-300 font-mono'>[ ___ ]</span> you leave it in the hot sun.",
+            spoken: "Milk goes sour if you leave it in the hot sun.",
+            ans: "if",
+            opts: ["if", "so", "therefore", "because of"]
+          }
+        ]
+      }
+    };
+
+    // =========================================================================
+    // 2. HEROES & HIGH-COST SHOP UPGRADES (PRESERVED EXACTLY)
+    // =========================================================================
+    const HEROES = {
+      brawler: { emoji: "🥔", color: "#ff2a85", hp: 120, speed: 3.2, dmg: 20, fireRate: 32, weaponColor: "#f43f5e", spread: true },
+      sniper:  { emoji: "🤠", color: "#00f5d4", hp: 90,  speed: 3.3, dmg: 42, fireRate: 48, weaponColor: "#00f5d4", pierce: true },
+      mage:    { emoji: "🧙‍♂️", color: "#a855f7", hp: 95,  speed: 3.3, dmg: 26, fireRate: 36, weaponColor: "#c084fc", aoe: true },
+      ninja:   { emoji: "🥷", color: "#fee440", hp: 90,  speed: 4.3, dmg: 22, fireRate: 24, weaponColor: "#fee440", pierce: true }
+    };
+
+    const SHOP_ITEMS = [
+      { id: "gun",    name: "+1 Orbit Gun",      desc: "Add 1 auto-turret (Max 6)", icon: "🔫", baseCost: 145, waveScale: 60, apply: (p) => { if (p.gunCount < 6) p.gunCount++; else p.dmg += 10; } },
+      { id: "medkit", name: "Emergency Medkit",  desc: "Heal +35 HP & +15 Max HP",  icon: "❤️", baseCost: 95,  waveScale: 35, apply: (p) => { p.maxHp += 15; p.hp = Math.min(p.maxHp, p.hp + 35); } },
+      { id: "dmg",    name: "Heavy Plasma Core", desc: "+25% Weapon Damage",        icon: "💥", baseCost: 110, waveScale: 45, apply: (p) => { p.dmg = Math.round(p.dmg * 1.25); } },
+      { id: "spd",    name: "Cyber Thrusters",   desc: "+18% Movement Speed",       icon: "🥾", baseCost: 85,  waveScale: 40, apply: (p) => { p.speed *= 1.18; } },
+      { id: "rate",   name: "Overclock Trigger", desc: "+22% Attack Speed",         icon: "⚡", baseCost: 105, waveScale: 45, apply: (p) => { p.fireRate = Math.max(12, Math.round(p.fireRate * 0.78)); } },
+      { id: "vamp",   name: "Vampiric Chip",     desc: "Heal +4 HP on right crate", icon: "🦇", baseCost: 120, waveScale: 50, apply: (p) => { p.lifeSteal = (p.lifeSteal || 0) + 4; } }
+    ];
+
+    // =========================================================================
+    // 3. RETRO SOUND & SPEECH ENGINE
+    // =========================================================================
+    class SoundFX {
+      constructor() {
+        this.ctx = null;
+        this.on = true;
+      }
+      init() {
+        if (!this.ctx) {
+          const AC = window.AudioContext || window.webkitAudioContext;
+          if (AC) this.ctx = new AC();
+        }
+        if (this.ctx && this.ctx.state === "suspended") this.ctx.resume();
+      }
+      tone(f, type, dur, delay = 0, vol = 0.1) {
+        if (!this.on) return;
+        this.init();
+        if (!this.ctx) return;
+        const t = this.ctx.currentTime + delay;
+        const o = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        o.type = type;
+        o.frequency.setValueAtTime(f, t);
+        g.gain.setValueAtTime(vol, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+        o.connect(g);
+        g.connect(this.ctx.destination);
+        o.start(t);
+        o.stop(t + dur);
+      }
+      shoot() { this.tone(540, "triangle", 0.04, 0, 0.04); }
+      gem()   { this.tone(920, "sine", 0.05, 0, 0.05); }
+      good()  {
+        this.tone(523, "triangle", 0.1, 0, 0.15);
+        this.tone(659, "triangle", 0.1, 0.07, 0.15);
+        this.tone(880, "sine", 0.22, 0.14, 0.18);
+      }
+      bad()   {
+        this.tone(180, "sawtooth", 0.16, 0, 0.14);
+        this.tone(135, "sawtooth", 0.22, 0.1, 0.14);
+      }
+    }
+    const sfx = new SoundFX();
+
+    function speak(txt) {
+      if (!("speechSynthesis" in window)) return;
+      try {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(txt);
+        u.lang = "en-US";
+        u.rate = 0.95;
+        window.speechSynthesis.speak(u);
+      } catch (e) {}
+    }
+
+    // =========================================================================
+    // 4. GAME STATE & DYNAMIC UI BUILDERS FOR 8 UNITS
+    // =========================================================================
+    let selectedTopic = "connectives";
+    let selectedHero = "brawler";
+    let gameSpeedMult = 1.0;
+    let questionDeck = [];
+
+    const QUESTION_BOMB_MAX = 720; // 12 seconds at 60fps
+    const WAVE_QUOTA_REQ = 3;      // Must solve at least 3 crates per wave
+
+    let state = {
+      screen: "start",
+      wave: 1,
+      maxWaves: 4,
+      waveSec: 30,
+      tick: 0,
+      gems: 0,
+      score: 0,
+      streak: 0,
+      bestStreak: 0,
+      cratesHit: 0,
+      cratesTotal: 0,
+      waveCratesSolved: 0,
+      questionTimer: QUESTION_BOMB_MAX,
+      purchasesMade: 0,
+      rerollCount: 0,
+      currentQ: null,
+      bountyDone: false
+    };
+
+    let player = {
+      x: 400, y: 200, r: 20,
+      hp: 100, maxHp: 100,
+      speed: 3.2, dmg: 20, fireRate: 32,
+      gunCount: 2, lifeSteal: 0,
+      emoji: "🥔", color: "#ff2a85", weaponColor: "#00f5d4",
+      spread: false, pierce: false, aoe: false,
+      invuln: 0
+    };
+
+    let crates = [];
+    let bugs = [];
+    let spawnMarks = [];
+    let bullets = [];
+    let enemyProjectiles = [];
+    let drops = [];
+    let rings = [];
+    let floats = [];
+    let gunCooldown = 0;
+
+    const keys = {};
+    let pointer = { down: false, x: 0, y: 0 };
+
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function drawNextQuestion() {
+      const pool = GRAMMAR_MODULES[selectedTopic].questions;
+      if (questionDeck.length === 0) questionDeck = shuffle(pool);
+      const q = questionDeck.pop();
+      return { ...q, shuffledOpts: shuffle(q.opts) };
+    }
+
+    // Dynamically populate #topicGrid and #rulesTabBar from GRAMMAR_MODULES
+    function buildDynamicTopicSelectors() {
+      const topicGrid = document.getElementById("topicGrid");
+      const rulesTabBar = document.getElementById("rulesTabBar");
+      topicGrid.innerHTML = "";
+      rulesTabBar.innerHTML = "";
+
+      Object.entries(GRAMMAR_MODULES).forEach(([key, mod]) => {
+        // 1. Start Screen Card
+        const cardBtn = document.createElement("button");
+        cardBtn.type = "button";
+        cardBtn.dataset.topic = key;
+        cardBtn.className = `topic-btn ${key === selectedTopic ? "active" : ""} rounded-2xl p-3 text-left flex flex-col justify-between gap-1`;
+        cardBtn.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="text-xl sm:text-2xl">${mod.icon}</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-arcade font-black ${mod.unitBadgeClass}">${mod.unitLabel}</span>
+          </div>
+          <div class="font-arcade text-xs sm:text-[13px] font-black text-white tracking-tight">${mod.cardTitle}</div>
+          <div class="text-[11px] text-slate-300 leading-tight">${mod.cardShortDesc}</div>
+        `;
+        cardBtn.onclick = () => {
+          selectedTopic = key;
+          document.querySelectorAll("#topicGrid .topic-btn").forEach(b => {
+            b.classList.toggle("active", b.dataset.topic === key);
+          });
+          updateTopicUI();
+          sfx.gem();
+        };
+        topicGrid.appendChild(cardBtn);
+
+        // 2. Rules Modal Tab Button
+        const tabBtn = document.createElement("button");
+        tabBtn.type = "button";
+        tabBtn.dataset.ruletopic = key;
+        tabBtn.className = `rule-tab-btn ${key === selectedTopic ? "active" : ""} px-2.5 py-1.5 rounded-xl text-[11px] font-arcade font-bold border border-slate-700 bg-slate-900 text-slate-300 transition`;
+        tabBtn.textContent = `${mod.icon} ${mod.name}`;
+        tabBtn.onclick = () => {
+          renderRulesModal(key);
+          sfx.gem();
+        };
+        rulesTabBar.appendChild(tabBtn);
+      });
+    }
+
+    function updateTopicUI() {
+      const mod = GRAMMAR_MODULES[selectedTopic];
+      document.getElementById("headerTopicBadge").textContent = `${mod.icon} Topic: ${mod.name}`;
+      document.getElementById("startSubtitle").textContent = `Selected Mission: ${mod.icon} ${mod.name} (${mod.desc})`;
+      document.getElementById("btnPlay").textContent = `▶ PLAY ${mod.name.toUpperCase()}`;
+      document.getElementById("btnRulesLabel").textContent = `${mod.icon} 6 Rules`;
+      renderRulesModal(selectedTopic);
+    }
+
+    // =========================================================================
+    // 5. SCREEN & ARENA SETUP
+    // =========================================================================
+    const canvas = document.getElementById("arenaCanvas");
+    const ctx = canvas.getContext("2d");
+
+    function resizeCanvas() {
+      if (!canvas.parentElement) return;
+      const r = canvas.parentElement.getBoundingClientRect();
+      if (r.width > 0 && r.height > 0) {
+        canvas.width = r.width;
+        canvas.height = r.height;
+        placeCrates();
+      }
+    }
+
+    function setScreen(name) {
+      state.screen = name;
+      ["viewStart", "viewArena", "viewShop", "viewOver"].forEach(id => {
+        const el = document.getElementById(id);
+        el.classList.add("hidden");
+        el.classList.remove("flex");
+      });
+      document.getElementById("btnQuit").classList.toggle("hidden", name === "start");
+
+      const target = document.getElementById(
+        name === "start" ? "viewStart" :
+        name === "arena" ? "viewArena" :
+        name === "shop"  ? "viewShop"  : "viewOver"
+      );
+      target.classList.remove("hidden");
+      if (name === "arena") {
+        target.classList.add("flex");
+        setTimeout(resizeCanvas, 20);
+      }
+    }
+
+    function startRun() {
+      questionDeck = shuffle(GRAMMAR_MODULES[selectedTopic].questions);
+      const h = HEROES[selectedHero];
+      player = {
+        x: 400, y: 200, r: 20,
+        hp: h.hp, maxHp: h.hp,
+        speed: h.speed, dmg: h.dmg, fireRate: h.fireRate,
+        gunCount: 2, lifeSteal: 0,
+        emoji: h.emoji, color: h.color, weaponColor: h.weaponColor,
+        spread: !!h.spread, pierce: !!h.pierce, aoe: !!h.aoe,
+        invuln: 0
+      };
+      state = {
+        screen: "arena",
+        wave: 1,
+        maxWaves: 4,
+        waveSec: 30,
+        tick: 0,
+        gems: 0,
+        score: 0,
+        streak: 0,
+        bestStreak: 0,
+        cratesHit: 0,
+        cratesTotal: 0,
+        waveCratesSolved: 0,
+        questionTimer: QUESTION_BOMB_MAX,
+        purchasesMade: 0,
+        rerollCount: 0,
+        currentQ: null,
+        bountyDone: false
+      };
+      startWave(1);
+    }
+
+    function startWave(wNum) {
+      state.wave = wNum;
+      state.waveSec = 28 + wNum * 2;
+      state.tick = 0;
+      state.waveCratesSolved = 0;
+      state.rerollCount = 0;
+      // No free full heal between waves! Only +5 HP breather
+      if (wNum > 1) {
+        player.hp = Math.min(player.maxHp, player.hp + 5);
+      }
+      bugs = [];
+      spawnMarks = [];
+      bullets = [];
+      enemyProjectiles = [];
+      drops = [];
+      rings = [];
+      floats = [];
+
+      setScreen("arena");
+      resizeCanvas();
+      player.x = (canvas.width || 800) / 2;
+      player.y = (canvas.height || 380) / 2;
+      player.invuln = 45;
+
+      loadNewQuestion();
+      for (let i = 0; i < 5 + wNum * 2; i++) queueBug();
+      if (wNum >= 2) queueBug("elite");
+      updateHud();
+    }
+
+    function loadNewQuestion() {
+      const q = drawNextQuestion();
+      state.currentQ = q;
+      state.questionTimer = QUESTION_BOMB_MAX;
+      document.getElementById("promptLogicTag").textContent = q.tag;
+      document.getElementById("promptSentence").innerHTML = q.html;
+
+      const btns = document.querySelectorAll("#quickBar .quick-btn");
+      btns.forEach((b, i) => {
+        b.querySelector(".q-label").textContent = q.shuffledOpts[i];
+      });
+      placeCrates();
+    }
+
+    function placeCrates() {
+      if (!state.currentQ) return;
+      const w = canvas.width || 800;
+      const h = canvas.height || 380;
+      const px = Math.min(125, w * 0.17);
+      const py = Math.min(62, h * 0.19);
+      const spots = [
+        { x: px,     y: py },
+        { x: w - px, y: py },
+        { x: px,     y: h - py },
+        { x: w - px, y: h - py }
+      ];
+      crates = state.currentQ.shuffledOpts.map((txt, i) => ({
+        x: spots[i].x,
+        y: spots[i].y,
+        r: 28,
+        label: txt,
+        cooldown: 40
+      }));
+    }
+
+    function showToast(msg, isGood) {
+      const t = document.getElementById("promptToast");
+      t.textContent = msg;
+      t.className = `absolute inset-0 rounded-2xl flex items-center justify-center font-arcade text-xs sm:text-sm font-black px-4 z-20 ${
+        isGood ? "bg-emerald-600 text-white" : "bg-rose-600 text-white"
+      }`;
+      setTimeout(() => t.classList.add("hidden"), 950);
+    }
+
+    function damagePlayer(amount, label = "") {
+      player.hp = Math.max(0, player.hp - amount);
+      player.invuln = 18;
+      floats.push({
+        x: player.x,
+        y: player.y - 20,
+        txt: label ? `-${amount} ❤️ (${label})` : `-${amount} ❤️`,
+        color: "#fb7185",
+        life: 1.0
+      });
+      sfx.bad();
+      updateHud();
+      if (player.hp <= 0 && state.screen === "arena") {
+        openGameOver(false, "💀 YOU DIED IN THE ARENA!");
+      }
+    }
+
+    function triggerBombOverload() {
+      if (state.screen !== "arena" || !state.currentQ) return;
+      const q = state.currentQ;
+      state.cratesTotal++;
+      state.streak = 0;
+
+      crates.forEach(c => {
+        rings.push({ x: c.x, y: c.y, r: 8, maxR: 130, color: "#f43f5e", life: 1 });
+      });
+
+      // Spawn penalty enemies on timeout
+      queueBug("elite");
+      queueBug("swarmer");
+      queueBug("swarmer");
+
+      showToast(`💣 TIME UP! Answer was "${q.ans}" (-20 ❤️ + Ambush!)`, false);
+      damagePlayer(20, "BOMB TIMEOUT");
+      if (state.screen === "arena") {
+        loadNewQuestion();
+      }
+    }
+
+    function pickCrate(idx) {
+      if (state.screen !== "arena" || !state.currentQ) return;
+      const c = crates[idx];
+      if (!c) return;
+
+      const q = state.currentQ;
+      const ok = c.label === q.ans;
+      state.cratesTotal++;
+
+      if (ok) {
+        state.cratesHit++;
+        state.waveCratesSolved++;
+        state.streak++;
+        if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+
+        // Scarce gem economy: +12 base + small streak bonus
+        const gainGems = 12 + Math.min(12, state.streak * 2);
+        state.gems += gainGems;
+        state.score += 120 * state.streak;
+
+        if (player.lifeSteal > 0) {
+          player.hp = Math.min(player.maxHp, player.hp + player.lifeSteal);
+        }
+
+        // Targeted EMP Shockwave damages nearby enemies
+        rings.push({ x: c.x, y: c.y, r: 10, maxR: 280, color: "#00f5d4", life: 1 });
+        bugs.forEach(b => {
+          const dist = Math.hypot(b.x - c.x, b.y - c.y);
+          if (dist < 290) {
+            b.hp -= 38;
+            const a = Math.atan2(b.y - player.y, b.x - player.x);
+            b.x += Math.cos(a) * 38;
+            b.y += Math.sin(a) * 38;
+          }
+        });
+
+        floats.push({ x: c.x, y: c.y - 15, txt: `⚡ +${gainGems}💎`, color: "#fee440", life: 1 });
+        sfx.good();
+        showToast(`⚡ CORRECT! "${q.ans}" (+${gainGems} 💎)`, true);
+      } else {
+        state.streak = 0;
+        const penaltyDmg = Math.max(22, Math.round(player.maxHp * 0.25));
+        rings.push({ x: c.x, y: c.y, r: 10, maxR: 140, color: "#fb7185", life: 1 });
+        floats.push({ x: c.x, y: c.y - 15, txt: `WRONG! ANS: ${q.ans}`, color: "#fb7185", life: 1 });
+
+        // Wrong answer spawns an angry Elite Brute + 3 fast Swarmers!
+        queueBug("elite");
+        for (let s = 0; s < 3; s++) queueBug("swarmer");
+
+        showToast(`❌ WRONG! Answer: "${q.ans}" (-${penaltyDmg} ❤️ & Elite Spawned!)`, false);
+        damagePlayer(penaltyDmg, "WRONG CRATE");
+      }
+
+      if (state.screen === "arena") {
+        updateHud();
+        loadNewQuestion();
+      }
+    }
+
+    function updateHud() {
+      const pct = Math.max(0, Math.min(100, Math.round((player.hp / player.maxHp) * 100)));
+      const hpBar = document.getElementById("hudHpBar");
+      hpBar.style.width = `${pct}%`;
+      if (pct <= 35) {
+        hpBar.className = "bg-gradient-to-r from-rose-600 to-amber-500 h-full transition-all duration-150";
+        document.getElementById("arenaContainer").classList.add("low-hp-vignette");
+      } else {
+        hpBar.className = "bg-gradient-to-r from-emerald-500 to-lime-400 h-full transition-all duration-150";
+        document.getElementById("arenaContainer").classList.remove("low-hp-vignette");
+      }
+
+      document.getElementById("hudHpText").textContent = `${Math.ceil(player.hp)}/${player.maxHp}`;
+      document.getElementById("hudGems").textContent = state.gems;
+      document.getElementById("hudStreak").textContent = state.streak;
+      document.getElementById("hudWaveTimer").textContent = `Wave ${state.wave}/${state.maxWaves} • ${state.waveSec}s`;
+
+      // Update Quota Pill
+      const quotaBadge = document.getElementById("hudQuotaBadge");
+      const quotaText = document.getElementById("hudQuotaText");
+      quotaText.textContent = `${state.waveCratesSolved}/${WAVE_QUOTA_REQ}`;
+      if (state.waveCratesSolved >= WAVE_QUOTA_REQ) {
+        quotaBadge.className = "px-2.5 py-1 rounded-xl bg-emerald-950/80 border border-emerald-400/60 font-arcade text-xs font-black text-emerald-300 flex items-center gap-1.5";
+      } else {
+        quotaBadge.className = "px-2.5 py-1 rounded-xl bg-rose-950/80 border border-rose-500/50 font-arcade text-xs font-black text-rose-300 flex items-center gap-1.5";
+      }
+    }
+
+    // =========================================================================
+    // 6. ARENA SIMULATION & RENDERING (4 Lethal Enemy Archetypes)
+    // =========================================================================
+    function queueBug(forcedType = null) {
+      const w = canvas.width || 800;
+      const h = canvas.height || 380;
+      let x = 45 + Math.random() * (w - 90);
+      let y = 45 + Math.random() * (h - 90);
+      if (Math.hypot(x - player.x, y - player.y) < 135) {
+        x = (x + w * 0.45) % (w - 90) + 45;
+      }
+
+      const wMult = 1 + (state.wave - 1) * 0.35;
+      const types = {
+        swarmer: { type: "swarmer", emoji: "🕷️", hp: Math.round(24 * wMult), spd: 1.75, r: 12, dmg: 14, color: "#f43f5e" },
+        dasher:  { type: "dasher",  emoji: "🐗", hp: Math.round(42 * wMult), spd: 1.2,  r: 15, dmg: 20, color: "#fb923c" },
+        spitter: { type: "spitter", emoji: "🛸", hp: Math.round(34 * wMult), spd: 1.0,  r: 14, dmg: 15, color: "#c084fc" },
+        elite:   { type: "elite",   emoji: "💀", hp: Math.round(115 * wMult), spd: 1.15, r: 21, dmg: 28, color: "#fee440" }
+      };
+
+      let chosen = types.swarmer;
+      if (forcedType && types[forcedType]) {
+        chosen = types[forcedType];
+      } else {
+        const roll = Math.random();
+        if (state.wave >= 3 && roll < 0.16) chosen = types.elite;
+        else if (roll < 0.42) chosen = types.spitter;
+        else if (roll < 0.72) chosen = types.dasher;
+        else chosen = types.swarmer;
+      }
+
+      spawnMarks.push({ x, y, t: 38, spec: chosen });
+    }
+
+    function stepArena() {
+      if (state.screen !== "arena") return;
+      const w = canvas.width || 800;
+      const h = canvas.height || 380;
+
+      // Per-Question 12-Second Bomb Fuse
+      state.questionTimer--;
+      const fusePct = Math.max(0, (state.questionTimer / QUESTION_BOMB_MAX) * 100);
+      document.getElementById("bombTimerBar").style.width = `${fusePct}%`;
+      const fuseSec = Math.max(0, state.questionTimer / 60).toFixed(1);
+      const fuseLbl = document.getElementById("bombFuseLabel");
+      fuseLbl.textContent = `💣 ${fuseSec}s`;
+      fuseLbl.className = state.questionTimer < 210
+        ? "font-mono text-xs font-black text-rose-400 animate-pulse shrink-0"
+        : "font-mono text-xs font-black text-amber-300 shrink-0";
+
+      if (state.questionTimer <= 0) {
+        triggerBombOverload();
+        if (state.screen !== "arena") return;
+      }
+
+      // 1-second wave clock & aggressive enemy spawning
+      state.tick++;
+      if (state.tick >= 60) {
+        state.tick = 0;
+        state.waveSec--;
+        updateHud();
+
+        if (state.waveSec > 1 && bugs.length < 18 + state.wave * 4) {
+          queueBug();
+          queueBug();
+          if (state.wave >= 2 && state.waveSec % 2 === 0) queueBug();
+        }
+
+        if (state.waveSec <= 0) {
+          // Check if player met the mandatory 3-crate wave quota!
+          if (state.waveCratesSolved < WAVE_QUOTA_REQ) {
+            openGameOver(false, `⚡ QUOTA FAILED! Only ${state.waveCratesSolved}/${WAVE_QUOTA_REQ} Crates Solved!`);
+            return;
+          }
+          if (state.wave >= state.maxWaves) {
+            openGameOver(true, "🏆 ALL 4 WAVES SURVIVED!");
+          } else {
+            openShop();
+          }
+          return;
+        }
+      }
+
+      // Player Movement
+      let dx = 0, dy = 0;
+      if (keys["KeyW"] || keys["ArrowUp"]) dy -= 1;
+      if (keys["KeyS"] || keys["ArrowDown"]) dy += 1;
+      if (keys["KeyA"] || keys["ArrowLeft"]) dx -= 1;
+      if (keys["KeyD"] || keys["ArrowRight"]) dx += 1;
+
+      if (dx !== 0 || dy !== 0) {
+        const len = Math.hypot(dx, dy);
+        player.x += (dx / len) * player.speed;
+        player.y += (dy / len) * player.speed;
+      } else if (pointer.down) {
+        const pdx = pointer.x - player.x;
+        const pdy = pointer.y - player.y;
+        const d = Math.hypot(pdx, pdy);
+        if (d > 6) {
+          player.x += (pdx / d) * player.speed;
+          player.y += (pdy / d) * player.speed;
+        }
+      }
+
+      player.x = Math.max(24, Math.min(w - 24, player.x));
+      player.y = Math.max(24, Math.min(h - 24, player.y));
+      if (player.invuln > 0) player.invuln--;
+
+      // Check walking into any of the 4 Supply Crates
+      for (let i = 0; i < crates.length; i++) {
+        const c = crates[i];
+        if (c.cooldown > 0) { c.cooldown--; continue; }
+        if (Math.hypot(player.x - c.x, player.y - c.y) < player.r + c.r - 4) {
+          pickCrate(i);
+          if (state.screen !== "arena") return;
+          break;
+        }
+      }
+
+      // Spawn bugs from red X marks
+      for (let i = spawnMarks.length - 1; i >= 0; i--) {
+        const m = spawnMarks[i];
+        m.t--;
+        if (m.t <= 0) {
+          bugs.push({
+            x: m.x, y: m.y,
+            type: m.spec.type,
+            r: m.spec.r, hp: m.spec.hp, maxHp: m.spec.hp,
+            spd: m.spec.spd * gameSpeedMult,
+            dmg: m.spec.dmg,
+            emoji: m.spec.emoji, color: m.spec.color,
+            aiTimer: 40 + Math.floor(Math.random() * 50),
+            dashVx: 0, dashVy: 0, dashTicks: 0
+          });
+          spawnMarks.splice(i, 1);
+        }
+      }
+
+      // Auto-Aim & Shoot from Orbiting Weapons
+      if (gunCooldown > 0) gunCooldown--;
+      if (gunCooldown <= 0 && bugs.length > 0) {
+        let nearest = null, minDist = 300;
+        bugs.forEach(b => {
+          const d = Math.hypot(b.x - player.x, b.y - player.y);
+          if (d < minDist) { minDist = d; nearest = b; }
+        });
+        if (nearest) {
+          gunCooldown = Math.max(10, Math.round(player.fireRate / (player.gunCount * 0.65)));
+          const ang = Math.atan2(nearest.y - player.y, nearest.x - player.x);
+          const offsets = player.spread ? [-0.2, 0, 0.2] : [0];
+          offsets.forEach(off => {
+            bullets.push({
+              x: player.x, y: player.y,
+              vx: Math.cos(ang + off) * 9.5,
+              vy: Math.sin(ang + off) * 9.5,
+              dmg: player.dmg,
+              pierce: player.pierce ? 2 : 1,
+              aoe: player.aoe,
+              color: player.weaponColor,
+              life: 42
+            });
+          });
+          sfx.shoot();
+        }
+      }
+
+      // Update Player Bullets
+      for (let i = bullets.length - 1; i >= 0; i--) {
+        const b = bullets[i];
+        b.x += b.vx;
+        b.y += b.vy;
+        b.life--;
+        if (b.life <= 0 || b.x < 0 || b.x > w || b.y < 0 || b.y > h) {
+          bullets.splice(i, 1);
+          continue;
+        }
+        for (let j = bugs.length - 1; j >= 0; j--) {
+          const en = bugs[j];
+          if (Math.hypot(b.x - en.x, b.y - en.y) < en.r + 6) {
+            en.hp -= b.dmg;
+            if (b.aoe) {
+              rings.push({ x: en.x, y: en.y, r: 5, maxR: 50, color: "#c084fc", life: 0.7 });
+              bugs.forEach(o => {
+                if (o !== en && Math.hypot(o.x - en.x, o.y - en.y) < 50) o.hp -= b.dmg * 0.5;
+              });
+            }
+            b.pierce--;
+            if (b.pierce <= 0) {
+              bullets.splice(i, 1);
+              break;
+            }
+          }
+        }
+      }
+
+      // Update Hostile Enemy Projectiles
+      for (let i = enemyProjectiles.length - 1; i >= 0; i--) {
+        const ep = enemyProjectiles[i];
+        ep.x += ep.vx;
+        ep.y += ep.vy;
+        ep.life--;
+        if (ep.life <= 0 || ep.x < 0 || ep.x > w || ep.y < 0 || ep.y > h) {
+          enemyProjectiles.splice(i, 1);
+          continue;
+        }
+        if (Math.hypot(ep.x - player.x, ep.y - player.y) < player.r + ep.r && player.invuln <= 0) {
+          enemyProjectiles.splice(i, 1);
+          damagePlayer(ep.dmg, "ACID SHOT");
+          if (state.screen !== "arena") return;
+        }
+      }
+
+      // Update Bugs & Special Attacks (Dashers, Spitters, Elites)
+      for (let i = bugs.length - 1; i >= 0; i--) {
+        const en = bugs[i];
+        if (en.hp <= 0) {
+          state.score += en.type === "elite" ? 90 : 25;
+          drops.push({ x: en.x, y: en.y, val: en.type === "elite" ? 8 : 2 });
+          bugs.splice(i, 1);
+          continue;
+        }
+
+        const a = Math.atan2(player.y - en.y, player.x - en.x);
+        const distToPlayer = Math.hypot(player.x - en.x, player.y - en.y);
+
+        if (en.type === "dasher") {
+          if (en.dashTicks > 0) {
+            en.x += en.dashVx;
+            en.y += en.dashVy;
+            en.dashTicks--;
+          } else {
+            en.x += Math.cos(a) * en.spd;
+            en.y += Math.sin(a) * en.spd;
+            en.aiTimer--;
+            if (en.aiTimer <= 0 && distToPlayer < 240) {
+              en.dashVx = Math.cos(a) * (en.spd * 3.6);
+              en.dashVy = Math.sin(a) * (en.spd * 3.6);
+              en.dashTicks = 22;
+              en.aiTimer = 85;
+            }
+          }
+        } else if (en.type === "spitter") {
+          if (distToPlayer > 175) {
+            en.x += Math.cos(a) * en.spd;
+            en.y += Math.sin(a) * en.spd;
+          }
+          en.aiTimer--;
+          if (en.aiTimer <= 0) {
+            en.aiTimer = Math.max(55, Math.round(95 / gameSpeedMult));
+            enemyProjectiles.push({
+              x: en.x, y: en.y,
+              vx: Math.cos(a) * 4.4 * gameSpeedMult,
+              vy: Math.sin(a) * 4.4 * gameSpeedMult,
+              r: 5.5,
+              dmg: en.dmg,
+              life: 110
+            });
+          }
+        } else if (en.type === "elite") {
+          en.x += Math.cos(a) * en.spd;
+          en.y += Math.sin(a) * en.spd;
+          en.aiTimer--;
+          if (en.aiTimer <= 0) {
+            en.aiTimer = 90;
+            [-0.28, 0, 0.28].forEach(spreadAngle => {
+              enemyProjectiles.push({
+                x: en.x, y: en.y,
+                vx: Math.cos(a + spreadAngle) * 4.8 * gameSpeedMult,
+                vy: Math.sin(a + spreadAngle) * 4.8 * gameSpeedMult,
+                r: 6.5,
+                dmg: 18,
+                life: 110
+              });
+            });
+          }
+        } else {
+          en.x += Math.cos(a) * en.spd;
+          en.y += Math.sin(a) * en.spd;
+        }
+
+        if (Math.hypot(player.x - en.x, player.y - en.y) < player.r + en.r - 2 && player.invuln <= 0) {
+          damagePlayer(en.dmg);
+          if (state.screen !== "arena") return;
+        }
+      }
+
+      // Update Gem Drops (Scarce Gems: +2 per normal bug, +8 per Elite)
+      for (let i = drops.length - 1; i >= 0; i--) {
+        const g = drops[i];
+        const d = Math.hypot(player.x - g.x, player.y - g.y);
+        if (d < 115) {
+          g.x += ((player.x - g.x) / d) * 6.5;
+          g.y += ((player.y - g.y) / d) * 6.5;
+        }
+        if (d < player.r + 8) {
+          state.gems += g.val || 2;
+          state.score += 10;
+          sfx.gem();
+          drops.splice(i, 1);
+          updateHud();
+        }
+      }
+    }
+
+    function drawArena() {
+      if (state.screen !== "arena") return;
+      const w = canvas.width || 800;
+      const h = canvas.height || 380;
+      ctx.clearRect(0, 0, w, h);
+
+      // Subtle Grid
+      ctx.strokeStyle = "rgba(0, 245, 212, 0.05)";
+      ctx.lineWidth = 1;
+      for (let x = 0; x < w; x += 44) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+      for (let y = 0; y < h; y += 44) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+
+      // Red X Spawn Warnings
+      spawnMarks.forEach(m => {
+        ctx.strokeStyle = m.spec.type === "elite" ? "#fee440" : "rgba(251, 113, 133, 0.75)";
+        ctx.lineWidth = m.spec.type === "elite" ? 4 : 3;
+        ctx.beginPath();
+        ctx.moveTo(m.x - 9, m.y - 9); ctx.lineTo(m.x + 9, m.y + 9);
+        ctx.moveTo(m.x + 9, m.y - 9); ctx.lineTo(m.x - 9, m.y + 9);
+        ctx.stroke();
+      });
+
+      // Gem Drops
+      drops.forEach(g => {
+        ctx.fillStyle = g.val > 2 ? "#fee440" : "#10b981";
+        ctx.beginPath();
+        ctx.arc(g.x, g.y, g.val > 2 ? 7 : 5, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // 4 Corner Supply Crates (Auto-scales width slightly for longer phrases like "quite an interesting")
+      const bombUrgent = state.questionTimer < 210 && Math.floor(state.questionTimer / 8) % 2 === 0;
+      crates.forEach((c, i) => {
+        ctx.save();
+        ctx.font = "800 12.5px 'Inter', monospace";
+        const textW = ctx.measureText(c.label).width;
+        const boxW = Math.max(116, Math.min(184, textW + 24));
+
+        ctx.fillStyle = "rgba(15, 23, 42, 0.94)";
+        ctx.strokeStyle = bombUrgent ? "#f43f5e" : "#fee440";
+        ctx.lineWidth = 2.5;
+        ctx.shadowColor = bombUrgent ? "#f43f5e" : "#fee440";
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.roundRect(c.x - boxW / 2, c.y - 22, boxW, 44, 12);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = bombUrgent ? "#fda4af" : "#fee440";
+        ctx.font = "900 10px 'Orbitron', sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(`[${i + 1}]`, c.x, c.y - 6);
+
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "800 12.5px 'Inter', monospace";
+        ctx.fillText(c.label, c.x, c.y + 12);
+        ctx.restore();
+      });
+
+      // Hostile Enemy Projectiles
+      enemyProjectiles.forEach(ep => {
+        ctx.save();
+        ctx.fillStyle = "#f43f5e";
+        ctx.shadowColor = "#f43f5e";
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.arc(ep.x, ep.y, ep.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      });
+
+      // Bugs + Elite HP bars + Dasher Telegraphs
+      bugs.forEach(en => {
+        if (en.type === "dasher" && en.aiTimer < 22) {
+          ctx.save();
+          ctx.strokeStyle = "rgba(251, 146, 60, 0.55)";
+          ctx.setLineDash([4, 4]);
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(en.x, en.y);
+          ctx.lineTo(player.x, player.y);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        ctx.fillStyle = "rgba(15, 23, 42, 0.88)";
+        ctx.strokeStyle = en.color;
+        ctx.lineWidth = en.type === "elite" ? 3 : 2;
+        ctx.beginPath();
+        ctx.arc(en.x, en.y, en.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.font = `${en.type === "elite" ? 22 : 16}px sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(en.emoji, en.x, en.y + 1);
+
+        // Mini HP bar on damaged or Elite enemies
+        if (en.hp < en.maxHp || en.type === "elite") {
+          const bw = en.r * 2;
+          ctx.fillStyle = "rgba(0,0,0,0.7)";
+          ctx.fillRect(en.x - en.r, en.y - en.r - 8, bw, 4);
+          ctx.fillStyle = en.color;
+          ctx.fillRect(en.x - en.r, en.y - en.r - 8, Math.max(0, (en.hp / en.maxHp) * bw), 4);
+        }
+      });
+
+      // Player Potato (flashes when invulnerable)
+      ctx.save();
+      if (player.invuln > 0 && Math.floor(player.invuln / 3) % 2 === 0) {
+        ctx.globalAlpha = 0.45;
+      }
+      ctx.fillStyle = "#1e1b4b";
+      ctx.strokeStyle = player.color;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(player.x, player.y, player.r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.font = "23px sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(player.emoji, player.x, player.y + 1);
+      ctx.restore();
+
+      // Orbiting Guns
+      const t = performance.now() * 0.003;
+      for (let i = 0; i < player.gunCount; i++) {
+        const a = t + (i * Math.PI * 2) / player.gunCount;
+        const gx = player.x + Math.cos(a) * 32;
+        const gy = player.y + Math.sin(a) * 32;
+        ctx.fillStyle = player.weaponColor;
+        ctx.beginPath();
+        ctx.arc(gx, gy, 5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Player Bullets
+      bullets.forEach(b => {
+        ctx.fillStyle = b.color;
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, 4.5, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Shockwave Rings
+      for (let i = rings.length - 1; i >= 0; i--) {
+        const r = rings[i];
+        r.r += (r.maxR - r.r) * 0.15;
+        r.life -= 0.04;
+        if (r.life <= 0) { rings.splice(i, 1); continue; }
+        ctx.save();
+        ctx.globalAlpha = r.life;
+        ctx.strokeStyle = r.color;
+        ctx.lineWidth = 3.5;
+        ctx.beginPath();
+        ctx.arc(r.x, r.y, r.r, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Floating Text
+      for (let i = floats.length - 1; i >= 0; i--) {
+        const f = floats[i];
+        f.y -= 0.8;
+        f.life -= 0.025;
+        if (f.life <= 0) { floats.splice(i, 1); continue; }
+        ctx.save();
+        ctx.globalAlpha = f.life;
+        ctx.font = "900 13px 'Orbitron', sans-serif";
+        ctx.fillStyle = f.color;
+        ctx.textAlign = "center";
+        ctx.fillText(f.txt, f.x, f.y);
+        ctx.restore();
+      }
+    }
+
+    // =========================================================================
+    // 7. HIGH-COST INFLATION SHOP & END SCREEN
+    // =========================================================================
+    function updateShopHeader() {
+      document.getElementById("shopGems").textContent = state.gems;
+      document.getElementById("shopHpText").textContent = `${Math.ceil(player.hp)}/${player.maxHp}`;
+      const rerollCost = 35 + state.rerollCount * 25;
+      const rBtn = document.getElementById("btnRerollShop");
+      rBtn.textContent = `🎲 Reroll (${rerollCost} 💎)`;
+      rBtn.disabled = state.gems < rerollCost;
+      rBtn.className = state.gems < rerollCost
+        ? "px-3 py-1 rounded-xl font-arcade text-xs font-black bg-slate-900 text-slate-600 border border-slate-800 cursor-not-allowed"
+        : "px-3 py-1 rounded-xl font-arcade text-xs font-black bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-400/40 transition";
+    }
+
+    function renderShopCards() {
+      const sGrid = document.getElementById("shopGrid");
+      sGrid.innerHTML = "";
+      shuffle(SHOP_ITEMS).slice(0, 3).forEach(item => {
+        const dynamicCost = item.baseCost + (state.wave - 1) * item.waveScale + state.purchasesMade * 45;
+        const canAfford = state.gems >= dynamicCost;
+
+        const card = document.createElement("div");
+        card.className = "bg-slate-900/90 border-2 border-cyan-500/30 rounded-2xl p-4 flex flex-col items-center justify-between text-center gap-2";
+        card.innerHTML = `
+          <div class="flex flex-col items-center gap-1">
+            <span class="text-4xl">${item.icon}</span>
+            <span class="font-arcade text-sm font-black text-white mt-1">${item.name}</span>
+            <span class="text-[11px] font-bold text-slate-400">${item.desc}</span>
+          </div>
+          <button type="button" class="mt-2 w-full py-2.5 rounded-xl font-arcade text-xs font-black transition ${
+            canAfford
+              ? "bg-amber-400 hover:bg-amber-300 text-slate-950 shadow-md"
+              : "bg-slate-800 text-rose-400/80 border border-rose-500/30"
+          }">
+            BUY (${dynamicCost} 💎)
+          </button>
+        `;
+        const buyBtn = card.querySelector("button");
+        buyBtn.onclick = () => {
+          const currentCost = item.baseCost + (state.wave - 1) * item.waveScale + state.purchasesMade * 45;
+          if (state.gems < currentCost || buyBtn.disabled) {
+            sfx.bad();
+            return;
+          }
+          state.gems -= currentCost;
+          state.purchasesMade++;
+          item.apply(player);
+          sfx.good();
+          updateShopHeader();
+          renderShopCards();
+        };
+        sGrid.appendChild(card);
+      });
+    }
+
+    function openShop() {
+      sfx.good();
+      setScreen("shop");
+      document.getElementById("shopTitle").textContent = `🛒 WAVE ${state.wave} ARMORY`;
+
+      // High-Stakes 1-Question Bonus Chest (+40 Gems or -20 HP Trap)
+      state.bountyDone = false;
+      const bq = drawNextQuestion();
+      document.getElementById("bountyPrompt").innerHTML = bq.html;
+      document.getElementById("bountyResultText").textContent = "One shot! Wrong answer = -20 ❤️!";
+      const bGrid = document.getElementById("bountyBtns");
+      bGrid.innerHTML = "";
+      bq.shuffledOpts.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "py-2.5 px-3 rounded-xl font-mono text-sm font-black bg-slate-900 hover:bg-indigo-900 text-white border border-cyan-500/40 transition";
+        btn.textContent = opt;
+        btn.onclick = () => {
+          if (state.bountyDone) return;
+          state.bountyDone = true;
+          if (opt === bq.ans) {
+            state.gems += 40;
+            state.score += 200;
+            btn.className = "py-2.5 px-3 rounded-xl font-mono text-sm font-black bg-emerald-600 text-white";
+            document.getElementById("bountyResultText").textContent = "✅ +40 💎 Claimed!";
+            sfx.good();
+          } else {
+            player.hp = Math.max(5, player.hp - 20);
+            btn.className = "py-2.5 px-3 rounded-xl font-mono text-sm font-black bg-rose-600 text-white";
+            document.getElementById("bountyResultText").textContent = `❌ Trap! -20 ❤️ (Ans: ${bq.ans})`;
+            sfx.bad();
+          }
+          updateShopHeader();
+          renderShopCards();
+        };
+        bGrid.appendChild(btn);
+      });
+
+      updateShopHeader();
+      renderShopCards();
+    }
+
+    function openGameOver(victory = true, reasonText = "") {
+      if (victory) sfx.good(); else sfx.bad();
+      setScreen("over");
+      const mod = GRAMMAR_MODULES[selectedTopic];
+      document.getElementById("overIcon").textContent = victory ? "🏆" : "💀";
+      const titleEl = document.getElementById("overTitle");
+      titleEl.textContent = victory ? "MISSION VICTORY!" : "MISSION FAILED!";
+      titleEl.className = victory
+        ? "font-arcade text-2xl sm:text-3xl font-black text-emerald-400"
+        : "font-arcade text-2xl sm:text-3xl font-black text-rose-500";
+
+      document.getElementById("overTopicLabel").textContent = reasonText
+        ? `${reasonText} • (${mod.icon} ${mod.name})`
+        : `Mission: ${mod.icon} ${mod.name}`;
+      document.getElementById("overScore").textContent = state.score.toLocaleString();
+      document.getElementById("overCrates").textContent = `${state.cratesHit}/${state.cratesTotal}`;
+      document.getElementById("overStreak").textContent = `${state.bestStreak}🔥`;
+    }
+
+    function renderRulesModal(topicKey = selectedTopic) {
+      const mod = GRAMMAR_MODULES[topicKey] || GRAMMAR_MODULES.connectives;
+      document.getElementById("rulesModalTitle").textContent = `📖 6 RULES: ${mod.name.toUpperCase()}`;
+
+      document.querySelectorAll("#rulesTabBar .rule-tab-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.ruletopic === topicKey);
+      });
+
+      const grid = document.getElementById("rulesGrid");
+      grid.innerHTML = "";
+      mod.rules.forEach(r => {
+        const card = document.createElement("div");
+        card.className = "bg-slate-900/95 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between gap-2";
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span class="font-mono text-sm sm:text-base font-black text-amber-300">${r.title}</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold border shrink-0 ${r.badgeClass}">${r.type}</span>
+            </div>
+            <div class="text-xs font-mono text-cyan-300 mb-1.5">${r.formula}</div>
+            <p class="text-sm font-bold text-white leading-snug">"${r.example}"</p>
+          </div>
+          <button type="button" class="mt-2 self-end px-3 py-1 rounded-lg bg-slate-800 hover:bg-cyan-400 hover:text-slate-950 text-cyan-300 text-xs font-bold transition">
+            🔊 Hear
+          </button>
+        `;
+        card.querySelector("button").onclick = () => speak(r.example);
+        grid.appendChild(card);
+      });
+    }
+
+    // =========================================================================
+    // 8. EVENT LISTENERS & LOOP
+    // =========================================================================
+    window.addEventListener("load", () => {
+      buildDynamicTopicSelectors();
+      updateTopicUI();
+      resizeCanvas();
+      window.addEventListener("resize", resizeCanvas);
+
+      // Hero Selection Cards
+      document.querySelectorAll("#heroGrid .hero-btn").forEach(btn => {
+        btn.onclick = () => {
+          selectedHero = btn.dataset.hero;
+          document.querySelectorAll("#heroGrid .hero-btn").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          sfx.gem();
+        };
+      });
+
+      // Speed Pills
+      document.querySelectorAll(".speed-pill").forEach(btn => {
+        btn.onclick = () => {
+          gameSpeedMult = parseFloat(btn.dataset.speed);
+          document.querySelectorAll(".speed-pill").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          sfx.gem();
+        };
+      });
+
+      // Main Navigation Buttons
+      document.getElementById("btnPlay").onclick = startRun;
+      document.getElementById("btnRestart").onclick = startRun;
+      document.getElementById("btnChangeTopic").onclick = () => setScreen("start");
+      document.getElementById("btnQuit").onclick = () => setScreen("start");
+      document.getElementById("btnNextWave").onclick = () => startWave(state.wave + 1);
+      document.getElementById("btnRerollShop").onclick = () => {
+        const cost = 35 + state.rerollCount * 25;
+        if (state.gems < cost) { sfx.bad(); return; }
+        state.gems -= cost;
+        state.rerollCount++;
+        sfx.gem();
+        updateShopHeader();
+        renderShopCards();
+      };
+
+      document.getElementById("btnSpeakPrompt").onclick = () => {
+        if (state.currentQ) speak(state.currentQ.spoken);
+      };
+
+      document.getElementById("btnSound").onclick = () => {
+        sfx.on = !sfx.on;
+        document.getElementById("btnSound").textContent = sfx.on ? "🔊" : "🔇";
+      };
+
+      // Rules Modal Open/Close
+      const modal = document.getElementById("rulesModal");
+      document.getElementById("btnOpenRules").onclick = () => {
+        renderRulesModal(selectedTopic);
+        modal.classList.remove("hidden");
+      };
+      document.getElementById("btnCloseRules").onclick = () => modal.classList.add("hidden");
+
+      // 4 Quick-Buttons Below Canvas
+      document.querySelectorAll("#quickBar .quick-btn").forEach(btn => {
+        btn.onclick = () => pickCrate(parseInt(btn.dataset.idx, 10));
+      });
+
+      // Keyboard Controls (WASD + Arrows + 1-4)
+      window.addEventListener("keydown", e => {
+        keys[e.code] = true;
+        if (state.screen === "arena" && ["1", "2", "3", "4"].includes(e.key)) {
+          pickCrate(parseInt(e.key, 10) - 1);
+        }
+      });
+      window.addEventListener("keyup", e => { keys[e.code] = false; });
+
+      // Pointer / Touch Controls on Canvas
+      function setPtr(e) {
+        const rect = canvas.getBoundingClientRect();
+        const cx = e.touches ? e.touches[0].clientX : e.clientX;
+        const cy = e.touches ? e.touches[0].clientY : e.clientY;
+        pointer.x = cx - rect.left;
+        pointer.y = cy - rect.top;
+      }
+
+      canvas.addEventListener("mousedown", e => {
+        setPtr(e);
+        for (let i = 0; i < crates.length; i++) {
+          if (Math.hypot(pointer.x - crates[i].x, pointer.y - crates[i].y) < 52) {
+            pickCrate(i);
+            return;
+          }
+        }
+        pointer.down = true;
+      });
+      canvas.addEventListener("mousemove", e => { if (pointer.down) setPtr(e); });
+      canvas.addEventListener("mouseup", () => { pointer.down = false; });
+
+      canvas.addEventListener("touchstart", e => {
+        e.preventDefault();
+        setPtr(e);
+        for (let i = 0; i < crates.length; i++) {
+          if (Math.hypot(pointer.x - crates[i].x, pointer.y - crates[i].y) < 56) {
+            pickCrate(i);
+            return;
+          }
+        }
+        pointer.down = true;
+      }, { passive: false });
+      canvas.addEventListener("touchmove", e => {
+        e.preventDefault();
+        if (pointer.down) setPtr(e);
+      }, { passive: false });
+      canvas.addEventListener("touchend", () => { pointer.down = false; });
+
+      // Main 60fps Loop
+      function loop() {
+        stepArena();
+        drawArena();
+        requestAnimationFrame(loop);
+      }
+      requestAnimationFrame(loop);
+    });
+  </script>
+</body>
+</html>
